@@ -1,0 +1,22 @@
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+#__nuxt {
+  min-height: 100vh;
+}
+
+#__nuxt > div {
+  min-height: 100vh;
+}

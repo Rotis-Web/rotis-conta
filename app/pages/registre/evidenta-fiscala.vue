@@ -1,0 +1,216 @@
+<template>
+  <div class="space-y-6">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">
+        Registru de Evidență Fiscală
+      </h2>
+
+      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-5 w-5 text-yellow-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-yellow-700">
+              Registrul de evidență fiscală se generează automat din datele
+              introduse în Registrul de Încasări și Plăți.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selector an -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Anul</label>
+        <select
+          v-model="selectedYear"
+          @change="loadData"
+          class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+        >
+          <option v-for="year in availableYears" :key="year" :value="year">
+            {{ year }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Raport anual -->
+      <div class="bg-gray-50 p-6 rounded-lg mb-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">
+          Raport Anual {{ selectedYear }}
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-3">Venituri</h4>
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-600">Total venituri:</span>
+                <span class="text-sm font-semibold">{{
+                  formatCurrency(totals.venituri)
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-3">
+              Cheltuieli Deductibile
+            </h4>
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-600">Total cheltuieli:</span>
+                <span class="text-sm font-semibold">{{
+                  formatCurrency(totals.cheltuieli)
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <div class="flex justify-between items-center">
+            <span class="text-base font-medium text-gray-900">Profit Net:</span>
+            <span class="text-xl font-bold text-green-600">{{
+              formatCurrency(totals.profit)
+            }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculatorul de taxe -->
+      <div class="bg-blue-50 p-6 rounded-lg">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">
+          Obligații Fiscale Estimate
+        </h3>
+
+        <div v-if="taxe" class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-700">CAS (25%):</span>
+            <span class="text-sm font-semibold">{{
+              formatCurrency(taxe.cas)
+            }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-700">CASS (10%):</span>
+            <span class="text-sm font-semibold">{{
+              formatCurrency(taxe.cass)
+            }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-700">Impozit pe venit (10%):</span>
+            <span class="text-sm font-semibold">{{
+              formatCurrency(taxe.impozit)
+            }}</span>
+          </div>
+          <div class="flex justify-between pt-3 border-t border-blue-200">
+            <span class="text-base font-medium text-gray-900"
+              >Total taxe de plată:</span
+            >
+            <span class="text-lg font-bold text-red-600">{{
+              formatCurrency(taxe.total)
+            }}</span>
+          </div>
+        </div>
+
+        <div class="mt-4 text-xs text-gray-600">
+          * Calculele sunt orientative. Consultați un contabil pentru valori
+          exacte.
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="mt-6 flex justify-end">
+        <button
+          @click="exportToExcel"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <svg
+            class="h-5 w-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          Export Raport
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+definePageMeta({
+  middleware: "auth",
+});
+
+const { calculate } = useCalculatorTaxe();
+const selectedYear = ref(new Date().getFullYear());
+
+const totals = ref({
+  venituri: 0,
+  cheltuieli: 0,
+  profit: 0,
+});
+
+const taxe = ref<any>(null);
+
+const availableYears = computed(() => {
+  const years = [];
+  const startYear = 2020;
+  const endYear = new Date().getFullYear();
+  for (let year = endYear; year >= startYear; year--) {
+    years.push(year);
+  }
+  return years;
+});
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("ro-RO", {
+    style: "currency",
+    currency: "RON",
+  }).format(amount);
+};
+
+const loadData = async () => {
+  try {
+    const { data } = await useFetch("/api/registre/incasari-plati", {
+      params: { an: selectedYear.value },
+    });
+
+    if (data.value) {
+      totals.value.venituri = data.value.totals.incasari;
+      totals.value.cheltuieli = data.value.totals.plati;
+      totals.value.profit = totals.value.venituri - totals.value.cheltuieli;
+
+      // Calculate taxes
+      taxe.value = calculate(totals.value.venituri, totals.value.cheltuieli);
+    }
+  } catch (error) {
+    console.error("Error loading data:", error);
+  }
+};
+
+const exportToExcel = () => {
+  alert("Funcționalitate de export în dezvoltare");
+};
+
+onMounted(() => {
+  loadData();
+});
+</script>
