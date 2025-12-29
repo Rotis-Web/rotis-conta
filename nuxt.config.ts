@@ -14,10 +14,7 @@ export default defineNuxtConfig({
   rootDir: resolve(__dirname),
   nitro: {
     plugins: [resolve(__dirname, "server/plugins/mongodb")],
-  },
-  typescript: {
-    strict: false,
-    shim: false,
+    logLevel: "debug",
   },
   devtools: { enabled: true },
   css: [resolve(__dirname, "assets/css/transitions.css")],

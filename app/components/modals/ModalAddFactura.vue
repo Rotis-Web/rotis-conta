@@ -13,6 +13,9 @@
             Adaugă Factură {{ tip === "emisa" ? "Emisă" : "Primită" }}
           </h3>
           <button
+            type="button"
+            id="close-modal"
+            aria-label="Close modal"
             @click="$emit('close')"
             class="text-gray-400 hover:text-gray-500"
           >
@@ -43,9 +46,12 @@
                 >Serie</label
               >
               <input
+                id="serie"
+                name="serie"
                 v-model="form.serie"
                 type="text"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
               />
             </div>
             <div>
@@ -53,10 +59,12 @@
                 >Număr *</label
               >
               <input
+                id="numarFactura"
+                name="numarFactura"
                 v-model="form.numarFactura"
                 type="text"
                 required
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
               />
             </div>
             <div>
@@ -64,10 +72,12 @@
                 >Data *</label
               >
               <input
+                id="data"
+                name="data"
                 v-model="form.data"
                 type="date"
                 required
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
               />
             </div>
           </div>
@@ -80,19 +90,23 @@
                   >Nume Client</label
                 >
                 <input
+                  id="nume"
+                  name="nume"
                   v-model="form.client.nume"
                   type="text"
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700"
-                  >CUI</label
+                  >CUI / CNP</label
                 >
                 <input
+                  id="cui"
+                  name="cui"
                   v-model="form.client.cui"
                   type="text"
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
                 />
               </div>
               <div class="col-span-2">
@@ -100,9 +114,11 @@
                   >Adresă</label
                 >
                 <input
+                  id="adresa"
+                  name="adresa"
                   v-model="form.client.adresa"
                   type="text"
-                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
                 />
               </div>
             </div>
@@ -113,8 +129,12 @@
               <h4 class="text-sm font-medium text-gray-900">Servicii</h4>
               <button
                 type="button"
+                aria-label="Add service"
+                title="Add service"
+                :disabled="loading"
+                name="addService"
                 @click="addService"
-                class="text-sm text-indigo-600 hover:text-indigo-500"
+                class="text-sm text-indigo-600 hover:text-indigo-500 cursor-pointer"
               >
                 + Adaugă serviciu
               </button>
@@ -127,40 +147,52 @@
             >
               <div class="col-span-2">
                 <input
+                  id="denumire"
+                  name="denumire"
                   v-model="serviciu.denumire"
                   type="text"
                   placeholder="Denumire"
-                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
                 />
               </div>
               <div>
                 <input
+                  id="cantitate"
+                  name="cantitate"
                   v-model.number="serviciu.cantitate"
                   type="number"
                   placeholder="Cant."
                   @input="calculateService(index)"
-                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
                 />
               </div>
               <div>
                 <input
+                  id="pretUnitar"
+                  name="pretUnitar"
                   v-model.number="serviciu.pretUnitar"
                   type="number"
                   step="0.01"
                   placeholder="Preț"
                   @input="calculateService(index)"
-                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
                 />
               </div>
               <div class="flex items-center space-x-2">
                 <input
+                  id="valoare"
+                  name="valoare"
                   :value="serviciu.valoare"
                   type="number"
                   disabled
-                  class="block w-full rounded-md border-gray-300 bg-gray-50 sm:text-sm"
+                  placeholder="Valoare"
+                  class="block w-full rounded-md border-gray-300 bg-gray-50 sm:text-sm p-2"
                 />
                 <button
                   type="button"
+                  aria-label="Remove service"
+                  title="Remove service"
+                  name="removeService"
                   @click="removeService(index)"
                   class="text-red-600 hover:text-red-900"
                 >
@@ -206,9 +238,11 @@
               >Status *</label
             >
             <select
+              id="status"
+              name="status"
               v-model="form.status"
               required
-              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
             >
               <option value="neplatita">Neplătită</option>
               <option value="platita">Plătită</option>
@@ -221,6 +255,8 @@
               Fișier factură (opțional)
             </label>
             <input
+              id="file"
+              name="file"
               ref="fileInput"
               type="file"
               accept=".pdf,.jpg,.jpeg,.png"
@@ -232,15 +268,21 @@
           <div class="flex justify-end space-x-3 border-t pt-4">
             <button
               type="button"
+              id="cancel"
+              aria-label="Cancel"
+              name="cancel"
               @click="$emit('close')"
-              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
             >
               Anulează
             </button>
             <button
               type="submit"
+              id="save"
+              aria-label="Save"
+              name="save"
               :disabled="loading"
-              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 cursor-pointer"
             >
               {{ loading ? "Se salvează..." : "Salvează" }}
             </button>
@@ -271,7 +313,7 @@ const form = ref({
     cui: "",
     adresa: "",
   },
-  servicii: [{ denumire: "", cantitate: 1, pretUnitar: 0, valoare: 0 }],
+  servicii: [{ denumire: "", cantitate: "", pretUnitar: "", valoare: "" }],
   subtotal: 0,
   tva: 0,
   total: 0,
@@ -287,9 +329,9 @@ const error = ref("");
 const addService = () => {
   form.value.servicii.push({
     denumire: "",
-    cantitate: 1,
-    pretUnitar: 0,
-    valoare: 0,
+    cantitate: "",
+    pretUnitar: "",
+    valoare: "",
   });
 };
 

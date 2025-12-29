@@ -1,21 +1,21 @@
 <template>
   <div class="space-y-6">
     <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex justify-between items-center mb-6">
+      <div
+        class="flex flex-col lg:flex-row justify-between lg:items-center gap-6 mb-6"
+      >
         <h2 class="text-2xl font-bold text-gray-900">
           Registru Încasări și Plăți
         </h2>
 
         <div class="flex items-center space-x-4">
-          <select
-            v-model="currentYear"
-            @change="onYearChange"
-            class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
-            <option v-for="year in availableYears" :key="year" :value="year">
-              {{ year }}
-            </option>
-          </select>
+          <div class="w-25 lg:w-32">
+            <CustomDropdown
+              v-model="currentYear"
+              :options="yearOptions"
+              @change="onYearChange"
+            />
+          </div>
 
           <button
             @click="showAddModal = true"
@@ -259,13 +259,20 @@ const currentYear = ref(registreStore.ipSelectedYear);
 const entriesCount = computed(() => registreStore.incasariPlati.length);
 
 const availableYears = computed(() => {
-  const years = [];
+  const years: number[] = [];
   const startYear = 2020;
   const endYear = new Date().getFullYear() + 1;
   for (let year = endYear; year >= startYear; year--) {
     years.push(year);
   }
   return years;
+});
+
+const yearOptions = computed(() => {
+  return availableYears.value.map((year) => ({
+    value: year,
+    label: year.toString(),
+  }));
 });
 
 const formatCurrency = (amount: number) => {
@@ -314,7 +321,6 @@ const handleDelete = async (id: string) => {
 
 const onAddSuccess = async () => {
   showAddModal.value = false;
-
   registreStore.recalculateTotals();
 };
 

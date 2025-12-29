@@ -1,12 +1,18 @@
 <template>
   <div class="space-y-6">
     <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex justify-between items-center mb-4">
+      <div
+        class="flex flex-col lg:flex-row justify-between lg:items-center gap-6 mb-6"
+      >
         <h2 class="text-2xl font-bold text-gray-900">
           Facturi {{ tip === "emisa" ? "Emise" : "Primite" }}
         </h2>
 
         <button
+          type="button"
+          aria-label="Add"
+          name="add"
+          id="add"
           @click="showAddModal = true"
           class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
         >

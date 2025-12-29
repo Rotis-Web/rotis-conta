@@ -1,21 +1,26 @@
 <template>
   <div class="space-y-6">
     <div class="bg-white rounded-lg shadow p-6">
-      <div class="flex justify-between items-center">
+      <div
+        class="flex flex-col lg:flex-row justify-between lg:items-center gap-6 mb-6"
+      >
         <h2 class="text-2xl font-bold text-gray-900">
           Registru de Intrare-Ieșire
         </h2>
 
-        <div class="flex items-center space-x-4">
-          <select
-            v-model="currentYear"
-            @change="onYearChange"
-            class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
-            <option v-for="year in availableYears" :key="year" :value="year">
-              {{ year }}
-            </option>
-          </select>
+        <div class="flex items-center flex-wrap gap-4">
+          <div class="w-25 lg:w-32">
+            <CustomDropdown
+              v-model="currentYear"
+              :options="
+                availableYears.map((year) => ({
+                  label: year.toString(),
+                  value: year,
+                }))
+              "
+              @update:modelValue="onYearChange"
+            />
+          </div>
 
           <button
             @click="showAddModal = true"
