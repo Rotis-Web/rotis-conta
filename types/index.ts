@@ -50,39 +50,16 @@ export interface IntrareIesire {
   an: number;
 }
 
-export interface Factura {
-  _id: string;
-  tip: "emisa" | "primita";
-  numarFactura: string;
-  serie?: string;
-  data: string | Date;
-  client?: {
-    nume: string;
-    cui: string;
-    adresa: string;
-  };
-  servicii?: Array<{
-    denumire: string;
-    cantitate: number;
-    pretUnitar: number;
-    valoare: number;
-  }>;
-  subtotal?: number;
-  tva?: number;
-  total: number;
-  status: "platita" | "neplatita" | "partial";
-  fisier?: {
-    url: string;
-    key: string;
-    nume: string;
-  };
-  an: number;
-  luna: number;
-}
-
 export interface Document {
   _id: string;
-  tip: "contract" | "extras" | "declaratie" | "plata" | "impozit" | "divers";
+  tip:
+    | "contract"
+    | "extras"
+    | "declaratie"
+    | "plati-impozite"
+    | "divers"
+    | "factura-emisa"
+    | "factura-primita";
   titlu: string;
   descriere?: string;
   data?: string | Date;
@@ -93,6 +70,7 @@ export interface Document {
     marime: number;
   };
   metadata?: any;
+  createdAt?: string | Date;
 }
 
 export interface TotalsMonthly {

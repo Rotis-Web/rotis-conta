@@ -9,6 +9,7 @@
             width="260"
             height="65"
             class="mx-auto"
+            preload
           />
         </div>
 

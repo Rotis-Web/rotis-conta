@@ -28,6 +28,7 @@
             alt="Roti's Conta Logo"
             width="120"
             height="32"
+            preload
           />
         </NuxtLink>
 
@@ -69,6 +70,7 @@
               alt="Roti's Conta Logo"
               width="120"
               height="32"
+              preload
             />
             <button
               @click="mobileMenuOpen = false"
@@ -185,6 +187,22 @@
                   active-class="bg-gray-800 text-white"
                 >
                   Declarații
+                </NuxtLink>
+                <NuxtLink
+                  to="/documente/plati-impozite"
+                  @click="mobileMenuOpen = false"
+                  class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-800 hover:text-white"
+                  active-class="bg-gray-800 text-white"
+                >
+                  Plăți și impozite
+                </NuxtLink>
+                <NuxtLink
+                  to="/documente/diverse"
+                  @click="mobileMenuOpen = false"
+                  class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-800 hover:text-white"
+                  active-class="bg-gray-800 text-white"
+                >
+                  Diverse
                 </NuxtLink>
               </div>
             </div>
@@ -343,6 +361,20 @@
                 active-class="bg-gray-800 text-white"
               >
                 Declarații
+              </NuxtLink>
+              <NuxtLink
+                to="/documente/plati-impozite"
+                class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-800 hover:text-white"
+                active-class="bg-gray-800 text-white"
+              >
+                Plăți și impozite
+              </NuxtLink>
+              <NuxtLink
+                to="/documente/diverse"
+                class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-800 hover:text-white"
+                active-class="bg-gray-800 text-white"
+              >
+                Diverse
               </NuxtLink>
             </div>
           </div>

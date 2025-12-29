@@ -207,6 +207,7 @@
         </NuxtLink>
       </div>
     </div>
+    <UploadDocument @success="handleUploadSuccess" />
   </div>
 </template>
 
@@ -233,6 +234,10 @@ const formatCurrency = (amount: number) => {
     style: "currency",
     currency: "RON",
   }).format(amount);
+};
+
+const handleUploadSuccess = () => {
+  documentsStore.fetchDocuments();
 };
 
 onMounted(async () => {

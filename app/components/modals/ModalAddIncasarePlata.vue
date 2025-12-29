@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 z-50 overflow-y-auto min-h-screen min-w-screen">
+  <div class="fixed inset-0 z-50 overflow-y-auto">
     <div class="flex min-h-screen items-center justify-center p-4">
       <div
         class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"

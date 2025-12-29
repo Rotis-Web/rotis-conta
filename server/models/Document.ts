@@ -8,7 +8,15 @@ const documentSchema = new mongoose.Schema({
   },
   tip: {
     type: String,
-    enum: ["contract", "extras", "declaratie", "plata", "impozit", "divers"],
+    enum: [
+      "contract",
+      "extras",
+      "declaratie",
+      "plati-impozite",
+      "divers",
+      "factura-emisa",
+      "factura-primita",
+    ],
     required: true,
   },
   titlu: {
@@ -16,7 +24,10 @@ const documentSchema = new mongoose.Schema({
     required: true,
   },
   descriere: String,
-  data: Date,
+  data: {
+    type: Date,
+    default: Date.now,
+  },
   fisier: {
     url: String,
     key: String,

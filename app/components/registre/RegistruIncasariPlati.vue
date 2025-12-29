@@ -41,14 +41,14 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-green-50 p-4 rounded-lg">
-          <div class="text-sm font-medium text-green-800">Încasări Total</div>
+          <div class="text-sm font-medium text-green-800">Total Încasări</div>
           <div class="text-2xl font-bold text-green-900">
             {{ formatCurrency(registreStore.ipTotals.incasari) }}
           </div>
         </div>
 
         <div class="bg-red-50 p-4 rounded-lg">
-          <div class="text-sm font-medium text-red-800">Plăți Total</div>
+          <div class="text-sm font-medium text-red-800">Total Plăți</div>
           <div class="text-2xl font-bold text-red-900">
             {{ formatCurrency(registreStore.ipTotals.plati) }}
           </div>
