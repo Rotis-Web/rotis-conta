@@ -4,12 +4,12 @@
       <div
         class="flex flex-col lg:flex-row justify-between lg:items-center gap-6 mb-6"
       >
-        <h2 class="text-2xl font-bold text-gray-900">
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900">
           Registru de Intrare-Ieșire
         </h2>
 
         <div class="flex items-center flex-wrap gap-4">
-          <div class="w-25 lg:w-32">
+          <div class="w-25">
             <CustomDropdown
               v-model="currentYear"
               :options="
@@ -23,7 +23,7 @@
           </div>
 
           <button
-            @click="showAddModal = true"
+            @click="openModal"
             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
           >
             <svg
@@ -43,6 +43,10 @@
           </button>
 
           <button
+            type="button"
+            :disabled="loading"
+            name="exportToExcel"
+            id="exportToExcel"
             @click="exportToExcel"
             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
           >
@@ -59,7 +63,7 @@
                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            Export Excel
+            <span>Export Excel</span>
           </button>
         </div>
       </div>
@@ -193,8 +197,8 @@
     </div>
 
     <ModalAddIntrareIesire
-      v-if="showAddModal"
-      @close="showAddModal = false"
+      :is-open="isOpen"
+      @close="closeModal"
       @success="onAddSuccess"
     />
   </div>
@@ -203,7 +207,6 @@
 <script setup lang="ts">
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
-import ModalAddIntrareIesire from "../modals/ModalAddIntrareIesire.vue";
 
 const {
   entries,
@@ -214,7 +217,7 @@ const {
   changeYear,
 } = useRegistreIntrareIesire();
 
-const showAddModal = ref(false);
+const { isOpen, openModal, closeModal } = useUploadModal();
 const currentYear = ref(selectedYear.value);
 
 const availableYears = computed(() => {
@@ -243,7 +246,7 @@ const handleDelete = async (id: string) => {
 };
 
 const onAddSuccess = () => {
-  showAddModal.value = false;
+  closeModal();
 };
 
 const exportToExcel = () => {
@@ -259,7 +262,7 @@ const exportToExcel = () => {
     "Destinatar",
   ];
 
-  const rows = entries.value.map((entry) => [
+  const rows = entries.value.map((entry: any) => [
     entry.nrInregistrare,
     formatDate(entry.dataInregistrarii),
     entry.nrSiDataDocument?.numar || "",
@@ -273,7 +276,7 @@ const exportToExcel = () => {
 
   const csvContent = [
     headers.join(","),
-    ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ...rows.map((row: any) => row.map((cell: any) => `"${cell}"`).join(",")),
   ].join("\n");
 
   const blob = new Blob(["\ufeff" + csvContent], {

@@ -1,234 +1,274 @@
 <template>
-  <div class="fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex min-h-screen items-center justify-center p-4">
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition-opacity duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-300"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
       <div
-        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-        @click="$emit('close')"
-      ></div>
-
-      <div class="relative bg-white rounded-lg shadow-xl max-w-3xl w-full p-6">
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-lg font-medium text-gray-900">
-            Adaugă Înregistrare Intrare-Ieșire
-          </h3>
-          <button
-            type="button"
-            id="close-modal"
-            aria-label="Close modal"
-            @click="$emit('close')"
-            class="text-gray-400 hover:text-gray-500"
+        v-if="isOpen"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end md:items-center justify-center"
+        @click.self="$emit('close')"
+      >
+        <Transition
+          enter-active-class="transition-transform duration-300"
+          enter-from-class="translate-y-full md:translate-y-0 md:scale-95"
+          enter-to-class="translate-y-0 md:scale-100"
+          leave-active-class="transition-transform duration-300"
+          leave-from-class="translate-y-0 md:scale-100"
+          leave-to-class="translate-y-full md:translate-y-0 md:scale-95"
+        >
+          <div
+            v-if="isOpen"
+            class="bg-white w-full md:w-full md:max-w-3xl md:rounded-lg h-full md:h-auto max-h-screen overflow-y-auto"
           >
-            <svg
-              class="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <div
+              class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <form @submit.prevent="handleSubmit" class="space-y-6">
-          <div v-if="error" class="rounded-md bg-red-50 p-4">
-            <div class="text-sm text-red-800">{{ error }}</div>
-          </div>
-
-          <div>
-            <label
-              for="dataInregistrarii"
-              class="block text-sm font-medium text-gray-700"
-            >
-              Data Înregistrării *
-            </label>
-            <input
-              id="dataInregistrarii"
-              name="dataInregistrarii"
-              v-model="form.dataInregistrarii"
-              type="date"
-              required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-            />
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label
-                for="documentNumar"
-                class="block text-sm font-medium text-gray-700"
+              <h3 class="text-lg font-semibold text-gray-900">
+                Adaugă Înregistrare
+              </h3>
+              <button
+                @click="$emit('close')"
+                type="button"
+                name="close"
+                id="close"
+                class="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                Număr Document
-              </label>
-              <input
-                id="documentNumar"
-                name="documentNumar"
-                v-model="form.nrSiDataDocument.numar"
-                type="text"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-              />
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
             </div>
-            <div>
-              <label
-                for="documentData"
-                class="block text-sm font-medium text-gray-700"
-              >
-                Data Document
-              </label>
-              <input
-                id="documentData"
-                name="documentData"
-                v-model="form.nrSiDataDocument.data"
-                type="date"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-              />
+
+            <div class="p-6">
+              <form @submit.prevent="handleSubmit" class="space-y-6">
+                <div v-if="error" class="rounded-md bg-red-50 p-4">
+                  <div class="text-sm text-red-800">{{ error }}</div>
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    for="dataInregistrarii"
+                  >
+                    Data Înregistrării *
+                  </label>
+                  <input
+                    v-model="form.dataInregistrarii"
+                    type="date"
+                    name="dataInregistrarii"
+                    id="dataInregistrarii"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      for="numar"
+                    >
+                      Număr Document
+                    </label>
+                    <input
+                      v-model="form.nrSiDataDocument.numar"
+                      type="text"
+                      required
+                      placeholder="Numărul documentului"
+                      name="numar"
+                      id="numar"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      for="data"
+                    >
+                      Data Document
+                    </label>
+                    <input
+                      v-model="form.nrSiDataDocument.data"
+                      type="date"
+                      required
+                      placeholder="Data documentului"
+                      name="data"
+                      id="data"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    for="emitent"
+                  >
+                    Emitent
+                  </label>
+                  <input
+                    v-model="form.emitent"
+                    type="text"
+                    required
+                    name="emitent"
+                    id="emitent"
+                    placeholder="Ex: Primăria Oradea, ANAF, etc."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    for="continutPeScurt"
+                  >
+                    Conținutul pe scurt al documentului *
+                  </label>
+                  <textarea
+                    v-model="form.continutPeScurt"
+                    required
+                    name="continutPeScurt"
+                    id="continutPeScurt"
+                    rows="3"
+                    placeholder="Descriere scurtă a documentului..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  ></textarea>
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    for="compartimentSiSemnatura"
+                  >
+                    Compartiment și Semnătura de Primire
+                  </label>
+                  <input
+                    v-model="form.compartimentSiSemnatura"
+                    type="text"
+                    name="compartimentSiSemnatura"
+                    id="compartimentSiSemnatura"
+                    placeholder="Ex: Compartiment 1, Semnătura 1"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      for="dataExpedierii"
+                    >
+                      Data Expedierii
+                    </label>
+                    <input
+                      v-model="form.dataExpedierii"
+                      type="date"
+                      required
+                      name="dataExpedierii"
+                      id="dataExpedierii"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      for="destinatar"
+                    >
+                      Destinatar
+                    </label>
+                    <input
+                      v-model="form.destinatar"
+                      type="text"
+                      required
+                      name="destinatar"
+                      id="destinatar"
+                      placeholder="Ex: Primăria Oradea, ANAF, etc."
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    for="nrInregistrareLaCare"
+                  >
+                    Nr. de înregistrare la care se conexează
+                  </label>
+                  <input
+                    v-model="form.nrInregistrareLaCare"
+                    type="text"
+                    name="nrInregistrareLaCare"
+                    id="nrInregistrareLaCare"
+                    placeholder="Nr. 123456"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    name="cancel"
+                    id="cancel"
+                    @click="$emit('close')"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Anulează
+                  </button>
+                  <button
+                    type="submit"
+                    name="save"
+                    id="save"
+                    :disabled="loading"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                  >
+                    {{ loading ? "Se salvează..." : "Salvează" }}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-
-          <div>
-            <label
-              for="emitent"
-              class="block text-sm font-medium text-gray-700"
-            >
-              Emitent
-            </label>
-            <input
-              id="emitent"
-              name="emitent"
-              v-model="form.emitent"
-              type="text"
-              placeholder="Ex: Primăria Oradea, ANAF, etc."
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-            />
-          </div>
-
-          <div>
-            <label
-              for="continutPeScurt"
-              class="block text-sm font-medium text-gray-700"
-            >
-              Conținutul pe scurt al documentului *
-            </label>
-            <textarea
-              id="continutPeScurt"
-              name="continutPeScurt"
-              v-model="form.continutPeScurt"
-              required
-              rows="3"
-              placeholder="Descriere scurtă a documentului..."
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-            ></textarea>
-          </div>
-
-          <div>
-            <label
-              for="compartiment"
-              class="block text-sm font-medium text-gray-700"
-            >
-              Compartiment și Semnătura de Primire
-            </label>
-            <input
-              id="compartiment"
-              name="compartiment"
-              v-model="form.compartimentSiSemnatura"
-              type="text"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-            />
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label
-                for="dataExpedierii"
-                class="block text-sm font-medium text-gray-700"
-              >
-                Data Expedierii
-              </label>
-              <input
-                id="dataExpedierii"
-                name="dataExpedierii"
-                v-model="form.dataExpedierii"
-                type="date"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-              />
-            </div>
-            <div>
-              <label
-                for="destinatar"
-                class="block text-sm font-medium text-gray-700"
-              >
-                Destinatar
-              </label>
-              <input
-                id="destinatar"
-                name="destinatar"
-                v-model="form.destinatar"
-                type="text"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              for="nrInregistrareLaCare"
-              class="block text-sm font-medium text-gray-700"
-            >
-              Nr. de înregistrare la care se conexează
-            </label>
-            <input
-              id="nrInregistrareLaCare"
-              name="nrInregistrareLaCare"
-              v-model="form.nrInregistrareLaCare"
-              type="text"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-            />
-          </div>
-
-          <div class="flex justify-end space-x-3">
-            <button
-              type="button"
-              id="cancel"
-              aria-label="Cancel"
-              @click="$emit('close')"
-              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-            >
-              Anulează
-            </button>
-            <button
-              type="submit"
-              id="save"
-              aria-label="Save"
-              :disabled="loading"
-              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 cursor-pointer"
-            >
-              {{ loading ? "Se salvează..." : "Salvează" }}
-            </button>
-          </div>
-        </form>
+        </Transition>
       </div>
-    </div>
-  </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
+defineProps<{
+  isOpen: boolean;
+}>();
+
 const emit = defineEmits(["close", "success"]);
 const registreStore = useRegistreStore();
+const today = new Date().toISOString().split("T")[0]!;
 
 const form = ref({
-  dataInregistrarii: new Date().toISOString().split("T")[0],
+  dataInregistrarii: today,
   nrSiDataDocument: {
     numar: "",
-    data: "",
+    data: today,
   },
   emitent: "",
   continutPeScurt: "",
   compartimentSiSemnatura: "",
-  dataExpedierii: "",
+  dataExpedierii: today,
   destinatar: "",
   nrInregistrareLaCare: "",
 });
@@ -244,6 +284,20 @@ const handleSubmit = async () => {
     await registreStore.addIntrareIesire(form.value);
     emit("success");
     emit("close");
+
+    form.value = {
+      dataInregistrarii: today,
+      nrSiDataDocument: {
+        numar: "",
+        data: today,
+      },
+      emitent: "",
+      continutPeScurt: "",
+      compartimentSiSemnatura: "",
+      dataExpedierii: today,
+      destinatar: "",
+      nrInregistrareLaCare: "",
+    };
   } catch (err: any) {
     error.value = err.message;
   } finally {

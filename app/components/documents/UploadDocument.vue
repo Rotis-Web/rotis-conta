@@ -3,7 +3,7 @@
     <h3 class="text-lg font-medium text-gray-900 mb-4">Încarcă Document</h3>
     <form @submit.prevent="handleUpload" class="space-y-4">
       <div v-if="!tip">
-        <label class="block text-sm font-medium text-gray-700">
+        <label class="block text-sm font-medium text-gray-700" for="tip">
           Tip Document *
         </label>
         <select
@@ -11,20 +11,22 @@
           name="tip"
           v-model="form.tip"
           required
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="">Selectează</option>
           <option value="contract">Contract</option>
           <option value="extras">Extras de cont</option>
           <option value="declaratie">Declarație</option>
-          <option value="plata">Plăți și impozite</option>
+          <option value="plati-impozite">Plăți și impozite</option>
           <option value="factura-emisa">Factură emisă</option>
           <option value="factura-primita">Factură primită</option>
           <option value="divers">Divers</option>
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700"> Titlu * </label>
+        <label class="block text-sm font-medium text-gray-700" for="title">
+          Titlu *
+        </label>
         <input
           id="title"
           name="title"
@@ -32,11 +34,11 @@
           type="text"
           required
           placeholder="Numele documentului"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700">
+        <label class="block text-sm font-medium text-gray-700" for="descriere">
           Descriere (opțional)
         </label>
         <input
@@ -45,21 +47,23 @@
           v-model="form.descriere"
           type="text"
           placeholder="Descriere scurtă"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700"> Data </label>
+        <label class="block text-sm font-medium text-gray-700" for="data">
+          Data
+        </label>
         <input
           id="data"
           name="data"
           v-model="form.data"
           type="date"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700">
+        <label class="block text-sm font-medium text-gray-700" for="file">
           Fișier *
         </label>
         <input
@@ -124,7 +128,6 @@ const handleUpload = async () => {
     });
     emit("success");
 
-    // Reset form
     form.value = {
       tip: props.tip || "",
       titlu: "",
@@ -141,7 +144,6 @@ const handleUpload = async () => {
   }
 };
 
-// Update form.tip when prop changes
 watch(
   () => props.tip,
   (newTip) => {

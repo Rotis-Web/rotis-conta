@@ -127,5 +127,40 @@ export const useAuthStore = defineStore("auth", {
         );
       }
     },
+
+    async updateProfile(profileData: { nume: string; email: string }) {
+      try {
+        const data = await $fetch<{ user: User }>("/api/auth/update-profile", {
+          method: "PUT",
+          body: profileData,
+        });
+        this.user = data.user;
+        return data;
+      } catch (err: any) {
+        throw new Error(
+          err.data?.message || err.message || "Eroare la actualizare profil"
+        );
+      }
+    },
+
+    async updatePassword(passwordData: {
+      currentPassword: string;
+      newPassword: string;
+    }) {
+      try {
+        const data = await $fetch<{ success: boolean; message: string }>(
+          "/api/auth/update-password",
+          {
+            method: "PUT",
+            body: passwordData,
+          }
+        );
+        return data;
+      } catch (err: any) {
+        throw new Error(
+          err.data?.message || err.message || "Eroare la schimbarea parolei"
+        );
+      }
+    },
   },
 });

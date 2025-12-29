@@ -4,12 +4,12 @@
       <div
         class="flex flex-col lg:flex-row justify-between lg:items-center gap-6 mb-6"
       >
-        <h2 class="text-2xl font-bold text-gray-900">
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900">
           Registru Încasări și Plăți
         </h2>
 
         <div class="flex items-center space-x-4">
-          <div class="w-25 lg:w-32">
+          <div class="w-25">
             <CustomDropdown
               v-model="currentYear"
               :options="yearOptions"
@@ -18,7 +18,7 @@
           </div>
 
           <button
-            @click="showAddModal = true"
+            @click="openModal"
             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
           >
             <svg
@@ -241,8 +241,8 @@
     </div>
 
     <ModalAddIncasarePlata
-      v-if="showAddModal"
-      @close="showAddModal = false"
+      :is-open="isOpen"
+      @close="closeModal"
       @success="onAddSuccess"
     />
   </div>
@@ -253,7 +253,7 @@ import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 
 const registreStore = useRegistreStore();
-const showAddModal = ref(false);
+const { isOpen, openModal, closeModal } = useUploadModal();
 const currentYear = ref(registreStore.ipSelectedYear);
 
 const entriesCount = computed(() => registreStore.incasariPlati.length);
@@ -320,7 +320,7 @@ const handleDelete = async (id: string) => {
 };
 
 const onAddSuccess = async () => {
-  showAddModal.value = false;
+  closeModal();
   registreStore.recalculateTotals();
 };
 

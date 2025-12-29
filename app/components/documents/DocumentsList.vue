@@ -17,7 +17,9 @@
         :key="group.month"
         class="space-y-2"
       >
-        <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">
+        <h3
+          class="text-md md:text-lg font-semibold text-gray-700 border-b pb-2"
+        >
           {{ group.monthName }}
         </h3>
         <div class="space-y-2">

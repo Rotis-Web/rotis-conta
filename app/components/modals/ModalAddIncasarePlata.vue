@@ -1,199 +1,246 @@
 <template>
-  <div class="fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex min-h-screen items-center justify-center p-4">
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition-opacity duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-300"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
       <div
-        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-        @click="$emit('close')"
-      ></div>
-
-      <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full p-6">
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-lg font-medium text-gray-900">Adaugă Înregistrare</h3>
-          <button
-            @click="$emit('close')"
-            type="button"
-            id="close-modal"
-            aria-label="Close modal"
-            class="text-gray-400 hover:text-gray-500"
+        v-if="isOpen"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end md:items-center justify-center"
+        @click.self="$emit('close')"
+      >
+        <Transition
+          enter-active-class="transition-transform duration-300"
+          enter-from-class="translate-y-full md:translate-y-0 md:scale-95"
+          enter-to-class="translate-y-0 md:scale-100"
+          leave-active-class="transition-transform duration-300"
+          leave-from-class="translate-y-0 md:scale-100"
+          leave-to-class="translate-y-full md:translate-y-0 md:scale-95"
+        >
+          <div
+            v-if="isOpen"
+            class="bg-white w-full md:w-full md:max-w-2xl md:rounded-lg h-full md:h-auto max-h-screen overflow-y-auto"
           >
-            <svg
-              class="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <div
+              class="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+              <h3 class="text-lg font-semibold text-gray-900">
+                Adaugă Înregistrare
+              </h3>
+              <button
+                @click="$emit('close')"
+                type="button"
+                name="close"
+                id="close"
+                class="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
 
-        <form @submit.prevent="handleSubmit" class="space-y-6">
-          <div v-if="error" class="rounded-md bg-red-50 p-4">
-            <div class="text-sm text-red-800">{{ error }}</div>
-          </div>
+            <div class="p-6">
+              <form @submit.prevent="handleSubmit" class="space-y-6">
+                <div v-if="error" class="rounded-md bg-red-50 p-4">
+                  <div class="text-sm text-red-800">{{ error }}</div>
+                </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Tip operațiune *
-            </label>
-            <div class="flex space-x-4">
-              <label class="flex items-center">
-                <input
-                  v-model="form.tip"
-                  id="incasare"
-                  name="incasare"
-                  type="radio"
-                  value="incasare"
-                  class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 cursor-pointer"
-                />
-                <span class="ml-2 text-sm text-gray-700">Încasare</span>
-              </label>
-              <label class="flex items-center">
-                <input
-                  v-model="form.tip"
-                  id="plata"
-                  name="plata"
-                  type="radio"
-                  value="plata"
-                  class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 cursor-pointer"
-                />
-                <span class="ml-2 text-sm text-gray-700">Plată</span>
-              </label>
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 mb-2"
+                    for="tip"
+                  >
+                    Tip operațiune *
+                  </label>
+                  <div class="flex space-x-4">
+                    <label class="flex items-center" for="tip">
+                      <input
+                        v-model="form.tip"
+                        type="radio"
+                        name="tip"
+                        id="tip"
+                        value="tip"
+                        checked
+                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 cursor-pointer"
+                      />
+                      <span class="ml-2 text-sm text-gray-700">Încasare</span>
+                    </label>
+                    <label class="flex items-center" for="tip">
+                      <input
+                        v-model="form.tip"
+                        type="radio"
+                        name="tip"
+                        value="tip"
+                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 cursor-pointer"
+                      />
+                      <span class="ml-2 text-sm text-gray-700">Plată</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    for="data"
+                  >
+                    Data *
+                  </label>
+                  <input
+                    v-model="form.data"
+                    type="date"
+                    name="data"
+                    id="data"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      for="document"
+                    >
+                      Tip Document
+                    </label>
+                    <select
+                      v-model="form.document.tip"
+                      required
+                      name="document"
+                      id="document"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="">Selectează</option>
+                      <option value="Extras Bancar">Extras Bancar</option>
+                      <option value="Factura">Factură</option>
+                      <option value="Chitanta">Chitanță</option>
+                      <option value="Dispoziție plată">Dispoziție plată</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      class="block text-sm font-medium text-gray-700 mb-1"
+                      for="numar"
+                    >
+                      Număr Document
+                    </label>
+                    <input
+                      v-model="form.document.numar"
+                      type="text"
+                      required
+                      placeholder="Numărul documentului"
+                      name="numar"
+                      id="numar"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    for="fel"
+                  >
+                    Felul Operațiunii *
+                  </label>
+                  <input
+                    v-model="form.felulOperatiunii"
+                    type="text"
+                    name="fel"
+                    id="fel"
+                    required
+                    placeholder="Ex: Încasare pentru servicii de dezvoltare website"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    for="suma"
+                  >
+                    Sumă (RON) *
+                  </label>
+                  <input
+                    v-model.number="form.suma"
+                    type="number"
+                    step="0.01"
+                    required
+                    placeholder="Ex: 1000"
+                    name="suma"
+                    id="suma"
+                    min="0"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    for="banca"
+                  >
+                    Bancă
+                  </label>
+                  <input
+                    v-model="form.banca"
+                    type="text"
+                    name="banca"
+                    id="banca"
+                    placeholder="Ex: BCR, BRD, ING"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    :disabled="loading"
+                    name="cancel"
+                    id="cancel"
+                    @click="$emit('close')"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Anulează
+                  </button>
+                  <button
+                    type="submit"
+                    name="save"
+                    id="save"
+                    :disabled="loading"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                  >
+                    {{ loading ? "Se salvează..." : "Salvează" }}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-
-          <div>
-            <label for="data" class="block text-sm font-medium text-gray-700">
-              Data *
-            </label>
-            <input
-              id="data"
-              name="data"
-              v-model="form.data"
-              type="date"
-              required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-            />
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label
-                for="documentTip"
-                class="block text-sm font-medium text-gray-700"
-              >
-                Tip Document
-              </label>
-              <select
-                id="documentTip"
-                name="documentTip"
-                v-model="form.document.tip"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-              >
-                <option value="">Selectează</option>
-                <option value="Extras Bancar">Extras Bancar</option>
-                <option value="Factura">Factură</option>
-                <option value="Chitanta">Chitanță</option>
-                <option value="Dispoziție plată">Dispoziție plată</option>
-              </select>
-            </div>
-            <div>
-              <label
-                for="documentNumar"
-                class="block text-sm font-medium text-gray-700"
-              >
-                Număr Document
-              </label>
-              <input
-                id="documentNumar"
-                name="documentNumar"
-                v-model="form.document.numar"
-                type="text"
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              for="felulOperatiunii"
-              class="block text-sm font-medium text-gray-700"
-            >
-              Felul Operațiunii *
-            </label>
-            <input
-              id="felulOperatiunii"
-              name="felulOperatiunii"
-              v-model="form.felulOperatiunii"
-              type="text"
-              required
-              placeholder="Ex: Încasare pentru servicii de dezvoltare website"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-            />
-          </div>
-
-          <div>
-            <label for="suma" class="block text-sm font-medium text-gray-700">
-              Sumă (RON) *
-            </label>
-            <input
-              id="suma"
-              name="suma"
-              v-model.number="form.suma"
-              type="number"
-              step="0.01"
-              required
-              min="0"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-            />
-          </div>
-
-          <div>
-            <label for="banca" class="block text-sm font-medium text-gray-700">
-              Bancă
-            </label>
-            <input
-              id="banca"
-              name="banca"
-              v-model="form.banca"
-              type="text"
-              placeholder="Ex: BCR, BRD, ING"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
-            />
-          </div>
-
-          <div class="flex justify-end space-x-3">
-            <button
-              type="button"
-              id="cancel"
-              aria-label="Cancel"
-              @click="$emit('close')"
-              class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
-            >
-              Anulează
-            </button>
-            <button
-              type="submit"
-              id="save"
-              aria-label="Save"
-              :disabled="loading"
-              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 cursor-pointer"
-            >
-              {{ loading ? "Se salvează..." : "Salvează" }}
-            </button>
-          </div>
-        </form>
+        </Transition>
       </div>
-    </div>
-  </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
+defineProps<{
+  isOpen: boolean;
+}>();
+
 const emit = defineEmits(["close", "success"]);
 const { addEntry } = useRegistreIncasariPlati();
 
@@ -205,7 +252,7 @@ const form = ref({
     numar: "",
   },
   felulOperatiunii: "",
-  suma: 0,
+  suma: "",
   banca: "",
 });
 
@@ -219,6 +266,16 @@ const handleSubmit = async () => {
   try {
     await addEntry(form.value);
     emit("success");
+    emit("close");
+
+    form.value = {
+      tip: "incasare",
+      data: new Date().toISOString().split("T")[0],
+      document: { tip: "", numar: "" },
+      felulOperatiunii: "",
+      suma: "",
+      banca: "",
+    };
   } catch (err: any) {
     error.value = err.message;
   } finally {
