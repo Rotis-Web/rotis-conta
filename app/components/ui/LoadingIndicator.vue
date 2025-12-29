@@ -2,7 +2,7 @@
   <Transition name="fade">
     <div
       v-if="isLoading"
-      class="fixed top-0 left-64 right-0 bottom-0 flex items-center justify-center bg-white bg-opacity-90"
+      class="fixed top-0 left-0 lg:left-64 right-0 bottom-0 flex items-center justify-center bg-white bg-opacity-90"
       style="z-index: 9998"
     >
       <div class="text-center">

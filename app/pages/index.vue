@@ -17,7 +17,7 @@
         </h1>
 
         <p
-          class="text-md sm:text-lg text-gray-600 mb-8 max-w-[35ch] mx-auto sm:max-w-[50ch]"
+          class="text-md sm:text-lg text-gray-600 mb-8 max-w-[33ch] mx-auto sm:max-w-[50ch]"
         >
           Gestionează facturi, registre și documente<br
             class="hidden sm:block"

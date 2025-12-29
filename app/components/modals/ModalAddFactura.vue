@@ -1,5 +1,8 @@
 <template>
-  <div class="fixed inset-0 z-50 overflow-y-auto" @click.self="$emit('close')">
+  <div
+    class="fixed inset-0 z-50 overflow-y-auto min-h-screen min-w-screen"
+    @click.self="$emit('close')"
+  >
     <div class="flex items-center justify-center min-h-screen px-4">
       <div
         class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
@@ -313,12 +316,19 @@ const form = ref({
     cui: "",
     adresa: "",
   },
-  servicii: [{ denumire: "", cantitate: "", pretUnitar: "", valoare: "" }],
+  servicii: [
+    {
+      denumire: "",
+      cantitate: undefined as number | undefined,
+      pretUnitar: undefined as number | undefined,
+      valoare: 0,
+    },
+  ],
   subtotal: 0,
   tva: 0,
   total: 0,
   status: "neplatita" as "platita" | "neplatita" | "partial",
-  fisier: null as any,
+  fisier: undefined as { url: string; key: string; nume: string } | undefined,
 });
 
 const fileInput = ref<HTMLInputElement>();
@@ -329,9 +339,9 @@ const error = ref("");
 const addService = () => {
   form.value.servicii.push({
     denumire: "",
-    cantitate: "",
-    pretUnitar: "",
-    valoare: "",
+    cantitate: undefined as number | undefined,
+    pretUnitar: undefined as number | undefined,
+    valoare: 0,
   });
 };
 
@@ -342,13 +352,23 @@ const removeService = (index: number) => {
 
 const calculateService = (index: number) => {
   const serviciu = form.value.servicii[index];
-  serviciu.valoare = serviciu.cantitate * serviciu.pretUnitar;
-  calculateTotals();
+  if (serviciu) {
+    const cantitate =
+      typeof serviciu.cantitate === "number" && !isNaN(serviciu.cantitate)
+        ? serviciu.cantitate
+        : 0;
+    const pretUnitar =
+      typeof serviciu.pretUnitar === "number" && !isNaN(serviciu.pretUnitar)
+        ? serviciu.pretUnitar
+        : 0;
+    serviciu.valoare = cantitate * pretUnitar;
+    calculateTotals();
+  }
 };
 
 const calculateTotals = () => {
   form.value.subtotal = form.value.servicii.reduce(
-    (sum, s) => sum + s.valoare,
+    (sum, s) => sum + (s.valoare || 0),
     0
   );
   form.value.tva = 0;
@@ -374,7 +394,7 @@ const handleSubmit = async () => {
   error.value = "";
 
   try {
-    let fisierData = null;
+    let fisierData = undefined;
     if (selectedFile.value) {
       const blob = await put(selectedFile.value.name, selectedFile.value, {
         access: "public",
@@ -388,8 +408,17 @@ const handleSubmit = async () => {
       };
     }
 
+    // Clean servicii data - ensure all values are numbers
+    const cleanedServicii = form.value.servicii.map((s) => ({
+      denumire: s.denumire,
+      cantitate: s.cantitate || 0,
+      pretUnitar: s.pretUnitar || 0,
+      valoare: s.valoare,
+    }));
+
     await facturiStore.addFactura({
       ...form.value,
+      servicii: cleanedServicii,
       fisier: fisierData,
     });
 
