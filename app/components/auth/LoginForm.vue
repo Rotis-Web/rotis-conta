@@ -8,15 +8,11 @@
           Autentificare PFA
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-          Contabilitate simplificată pentru PFA
+          Contabilitate simplificată by Roti's Web
         </p>
       </div>
 
       <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
-        <div v-if="error" class="rounded-md bg-red-50 p-4">
-          <div class="text-sm text-red-800">{{ error }}</div>
-        </div>
-
         <div class="rounded-md shadow-sm space-y-4">
           <div>
             <label for="email" class="sr-only">Email</label>
@@ -40,6 +36,10 @@
               placeholder="Parolă"
             />
           </div>
+        </div>
+
+        <div v-if="error" class="rounded-md bg-red-50 p-4">
+          <div class="text-sm text-red-800">{{ error }}</div>
         </div>
 
         <div>

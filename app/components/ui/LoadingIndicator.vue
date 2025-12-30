@@ -2,7 +2,8 @@
   <Transition name="fade">
     <div
       v-if="isLoading"
-      class="fixed top-0 left-0 lg:left-64 right-0 bottom-0 flex items-center justify-center bg-white bg-opacity-95"
+      class="fixed top-0 right-0 bottom-0 flex items-center justify-center bg-white"
+      :class="hasSidebar ? 'left-0 lg:left-64' : 'left-0'"
       style="z-index: 9998"
     >
       <div class="text-center">
@@ -19,14 +20,22 @@
 
 <script setup lang="ts">
 const nuxtApp = useNuxtApp();
+const route = useRoute();
 const pageLoadingStore = usePageLoadingStore();
 const isLoading = computed(() => pageLoadingStore.isLoading);
+const hasSidebar = computed(() => route.meta.layout !== "auth");
 
 nuxtApp.hook("page:start", () => {
   pageLoadingStore.startLoading();
 });
 
 nuxtApp.hook("page:finish", () => {});
+
+watch(isLoading, (v) => {
+  if (!process.client) return;
+  document.documentElement.style.overflow = v ? "hidden" : "";
+  document.body.style.overflow = v ? "hidden" : "";
+});
 
 onMounted(() => {
   if (!pageLoadingStore.isLoading) {
