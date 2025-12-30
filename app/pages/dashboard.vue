@@ -225,7 +225,7 @@ definePageMeta({
 const authStore = useAuthStore();
 const registreStore = useRegistreStore();
 const documentsStore = useDocumentsStore();
-const pageLoadingStore = usePageLoadingStore();
+const { finishLoading } = usePageLoad();
 
 const currentYear = ref(new Date().getFullYear());
 
@@ -256,7 +256,7 @@ onMounted(async () => {
   } catch (error) {
     console.error("Error loading dashboard data:", error);
   } finally {
-    pageLoadingStore.stopLoading();
+    finishLoading();
   }
 });
 </script>

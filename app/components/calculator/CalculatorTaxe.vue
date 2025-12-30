@@ -259,6 +259,10 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: "auth",
+});
+
 const { calculate, calculateFromIncasariPlati, thresholds } =
   useCalculatorTaxe();
 const { finishLoading } = usePageLoad();

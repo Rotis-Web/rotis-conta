@@ -1,12 +1,5 @@
 <template>
   <div class="space-y-6">
-    <!-- <div class="bg-white rounded-lg shadow p-6">
-      <h1 class="text-2xl font-bold text-gray-900">Setări</h1>
-      <p class="text-gray-600 mt-2">
-        Gestionează datele contului și informațiile PFA
-      </p>
-    </div> -->
-
     <div class="bg-white rounded-lg shadow">
       <div class="border-b border-gray-200">
         <nav class="flex -mb-px">
@@ -388,15 +381,11 @@
 </template>
 
 <script setup lang="ts">
-const { finishLoading } = usePageLoad();
-
-onMounted(() => {
-  finishLoading();
-});
-
 definePageMeta({
   middleware: "auth",
 });
+
+const { finishLoading } = usePageLoad();
 
 const {
   activeTab,
@@ -417,5 +406,6 @@ const {
 
 onMounted(() => {
   initializeForms();
+  finishLoading();
 });
 </script>

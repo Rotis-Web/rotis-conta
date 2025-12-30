@@ -275,6 +275,10 @@
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 
+definePageMeta({
+  middleware: "auth",
+});
+
 const registreStore = useRegistreStore();
 const { isOpen, openModal, closeModal } = useUploadModal();
 const { exportIncasariPlatiCSV } = useExportCSV();
@@ -367,6 +371,8 @@ onMounted(async () => {
     if (!registreStore.ipInitialized) {
       await registreStore.fetchIncasariPlati(currentYear.value);
     }
+  } catch (error) {
+    console.error("Error loading data:", error);
   } finally {
     finishLoading();
   }

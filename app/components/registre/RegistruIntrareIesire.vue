@@ -208,6 +208,10 @@
 import { format } from "date-fns";
 import { ro } from "date-fns/locale";
 
+definePageMeta({
+  middleware: "auth",
+});
+
 const {
   entries,
   loading,
@@ -259,6 +263,8 @@ const handleExport = () => {
 onMounted(async () => {
   try {
     await fetchEntries();
+  } catch (error) {
+    console.error("Error loading data:", error);
   } finally {
     finishLoading();
   }

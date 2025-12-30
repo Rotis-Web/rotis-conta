@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 
 export const usePageLoadingStore = defineStore("pageLoading", {
   state: () => ({
-    isLoading: false,
+    isLoading: true,
   }),
 
   actions: {
@@ -13,7 +13,7 @@ export const usePageLoadingStore = defineStore("pageLoading", {
     stopLoading() {
       setTimeout(() => {
         this.isLoading = false;
-      }, 150);
+      }, 100);
     },
   },
 });

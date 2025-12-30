@@ -5,12 +5,10 @@ export const usePageLoad = () => {
     pageLoadingStore.stopLoading();
   };
 
-  onMounted(() => {
-    nextTick(() => {
-      if (pageLoadingStore.isLoading) {
-        finishLoading();
-      }
-    });
+  onBeforeUnmount(() => {
+    if (pageLoadingStore.isLoading) {
+      finishLoading();
+    }
   });
 
   return {
