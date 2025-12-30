@@ -374,6 +374,51 @@
               </div>
             </form>
           </div>
+
+          <div class="border-t pt-6">
+            <h2 class="text-lg font-semibold text-red-600 mb-2">
+              Ștergere cont
+            </h2>
+            <p class="text-sm text-gray-600 mb-4">
+              Această acțiune este permanentă. Vor fi șterse toate datele
+              contului și înregistrările asociate.
+            </p>
+
+            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+              <label
+                class="block text-sm font-medium text-gray-700 mb-2"
+                for="confirmDelete"
+              >
+                Scrie <span class="font-semibold">STERGE</span> pentru
+                confirmare
+              </label>
+              <input
+                id="confirmDelete"
+                name="confirmDelete"
+                v-model="deleteConfirmText"
+                type="text"
+                class="w-full px-3 py-2 border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                placeholder="STERGE"
+              />
+
+              <div class="flex justify-end mt-4">
+                <button
+                  type="button"
+                  name="deleteAccount"
+                  id="deleteAccount"
+                  @click="handleDeleteAccount"
+                  :disabled="deleteLoading || deleteConfirmText !== 'STERGE'"
+                  class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ deleteLoading ? "Se șterge..." : "Șterge contul" }}
+                </button>
+              </div>
+
+              <div v-if="deleteError" class="mt-3 text-sm text-red-700">
+                {{ deleteError }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -398,10 +443,15 @@ const {
   accountMessage,
   passwordLoading,
   passwordMessage,
+  deleteConfirmText,
+  deleteLoading,
+  deleteError,
   initializeForms,
   handlePFASubmit,
   handleAccountSubmit,
   handlePasswordSubmit,
+
+  handleDeleteAccount,
 } = useSettings();
 
 onMounted(() => {

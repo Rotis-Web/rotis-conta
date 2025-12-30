@@ -162,5 +162,37 @@ export const useAuthStore = defineStore("auth", {
         );
       }
     },
+
+    async deleteAccount() {
+      this.loading = true;
+
+      try {
+        await $fetch("/api/auth/delete-account", {
+          method: "DELETE",
+          credentials: "include",
+        });
+
+        this.user = null;
+        this.initialized = false;
+
+        const facturiStore = useFacturiStore();
+        const registreStore = useRegistreStore();
+        const documentsStore = useDocumentsStore();
+
+        facturiStore.$reset();
+        registreStore.$reset();
+        documentsStore.$reset();
+
+        navigateTo("/login");
+      } catch (err: any) {
+        throw new Error(
+          err.data?.message ||
+            err.message ||
+            "A apărut o eroare la ștergerea contului"
+        );
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 });

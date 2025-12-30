@@ -155,6 +155,30 @@ export const useSettings = () => {
     }
   };
 
+  const deleteConfirmText = ref("");
+  const deleteLoading = ref(false);
+  const deleteError = ref("");
+
+  const handleDeleteAccount = async () => {
+    deleteError.value = "";
+    if (deleteConfirmText.value !== "STERGE") return;
+
+    if (!confirm("Sigur vrei să ștergi contul? Acțiunea este permanentă."))
+      return;
+
+    deleteLoading.value = true;
+    try {
+      await authStore.deleteAccount();
+      await navigateTo("/login");
+    } catch (e: any) {
+      deleteError.value =
+        e?.message || "A apărut o eroare la ștergerea contului.";
+    } finally {
+      deleteLoading.value = false;
+      deleteConfirmText.value = "";
+    }
+  };
+
   return {
     activeTab,
     pfaForm,
@@ -166,10 +190,14 @@ export const useSettings = () => {
     accountMessage,
     passwordLoading,
     passwordMessage,
+    deleteConfirmText,
+    deleteLoading,
+    deleteError,
 
     initializeForms,
     handlePFASubmit,
     handleAccountSubmit,
     handlePasswordSubmit,
+    handleDeleteAccount,
   };
 };

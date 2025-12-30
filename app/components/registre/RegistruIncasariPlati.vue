@@ -245,7 +245,7 @@
                 <td class="px-6 py-3 text-sm text-red-700">
                   {{ formatCurrency(item.plati) }}
                 </td>
-                <td class="px-6 py-3 text-sm text-blue-700">
+                <td class="px-6 py-3 text-sm text-blue-700 text-nowrap">
                   Sold: {{ formatCurrency(item.sold) }}
                 </td>
               </tr>
@@ -354,7 +354,7 @@ const entriesWithMonthlyTotals = computed(() => {
   let monthlyPlati = 0;
   let nrCrt = 1;
 
-  entries.forEach((entry, index) => {
+  entries.forEach((entry: any, index: number) => {
     const entryDate = new Date(entry.data);
     const entryMonth = entryDate.getMonth() + 1;
 

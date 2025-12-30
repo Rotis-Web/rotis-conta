@@ -250,7 +250,7 @@ const entriesWithMonthlyTotals = computed(() => {
   let monthlyCount = 0;
   let nrCrt = 1;
 
-  entries.forEach((entry, index) => {
+  entries.forEach((entry: any, index: number) => {
     const entryDate = new Date(entry.dataInregistrarii);
     const entryMonth = entryDate.getMonth() + 1;
 

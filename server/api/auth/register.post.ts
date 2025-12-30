@@ -11,6 +11,15 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const userCount = await User.countDocuments();
+  if (userCount > 0) {
+    throw createError({
+      statusCode: 403,
+      message:
+        "Înregistrarea este dezactivată. Aplicația permite un singur cont.",
+    });
+  }
+
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     throw createError({
