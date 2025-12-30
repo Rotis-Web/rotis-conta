@@ -5,32 +5,7 @@
         Registru de Evidență Fiscală
       </h2>
 
-      <!-- <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg
-              class="h-5 w-5 text-yellow-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm text-yellow-700">
-              Registrul de evidență fiscală se generează automat din datele
-              introduse în Registrul de Încasări și Plăți.
-            </p>
-          </div>
-        </div>
-      </div> -->
-
       <div class="mb-6">
-        <!-- <label class="block text-sm font-medium text-gray-700 mb-2">Anul</label> -->
         <div class="w-25">
           <CustomDropdown
             v-model="selectedYear"
@@ -153,10 +128,8 @@
 
       <div class="mt-6 flex justify-end">
         <button
-          @click="exportToExcel"
+          @click="handleExport"
           type="button"
-          name="exportExcel"
-          id="exportExcel"
           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
         >
           <svg
@@ -172,7 +145,7 @@
               d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          Export Raport
+          Export CSV
         </button>
       </div>
     </div>
@@ -186,6 +159,8 @@ definePageMeta({
 
 const { finishLoading } = usePageLoad();
 const { calculate } = useCalculatorTaxe();
+const { exportEvidentaFiscalaCSV } = useExportCSV();
+
 const selectedYear = ref(new Date().getFullYear());
 
 const totals = ref({
@@ -232,8 +207,10 @@ const loadData = async () => {
   }
 };
 
-const exportToExcel = () => {
-  alert("Funcționalitate de export în dezvoltare");
+const handleExport = () => {
+  if (taxe.value) {
+    exportEvidentaFiscalaCSV(selectedYear.value, totals.value, taxe.value);
+  }
 };
 
 const handleYearChange = () => {

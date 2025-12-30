@@ -8,7 +8,7 @@
           Registru Încasări și Plăți
         </h2>
 
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center flex-wrap gap-4">
           <div class="w-25">
             <CustomDropdown
               v-model="currentYear"
@@ -35,6 +35,29 @@
               />
             </svg>
             Adaugă înregistrare
+          </button>
+
+          <button
+            @click="handleExport"
+            type="button"
+            name="exportExcel"
+            id="exportExcel"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <svg
+              class="h-5 w-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            Export CSV
           </button>
         </div>
       </div>
@@ -254,6 +277,9 @@ import { ro } from "date-fns/locale";
 
 const registreStore = useRegistreStore();
 const { isOpen, openModal, closeModal } = useUploadModal();
+const { exportIncasariPlatiCSV } = useExportCSV();
+const { finishLoading } = usePageLoad();
+
 const currentYear = ref(registreStore.ipSelectedYear);
 
 const entriesCount = computed(() => registreStore.incasariPlati.length);
@@ -328,9 +354,21 @@ const refreshData = async () => {
   await registreStore.fetchIncasariPlati(currentYear.value, undefined, true);
 };
 
+const handleExport = () => {
+  exportIncasariPlatiCSV(
+    registreStore.incasariPlati,
+    currentYear.value,
+    registreStore.ipTotals
+  );
+};
+
 onMounted(async () => {
-  if (!registreStore.ipInitialized) {
-    await registreStore.fetchIncasariPlati(currentYear.value);
+  try {
+    if (!registreStore.ipInitialized) {
+      await registreStore.fetchIncasariPlati(currentYear.value);
+    }
+  } finally {
+    finishLoading();
   }
 });
 </script>

@@ -43,12 +43,12 @@
           </button>
 
           <button
+            @click="handleExport"
             type="button"
+            name="exportExcel"
+            id="exportExcel"
             :disabled="loading"
-            name="exportToExcel"
-            id="exportToExcel"
-            @click="exportToExcel"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
           >
             <svg
               class="h-5 w-5 mr-2"
@@ -63,7 +63,7 @@
                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            <span>Export Excel</span>
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
@@ -218,6 +218,9 @@ const {
 } = useRegistreIntrareIesire();
 
 const { isOpen, openModal, closeModal } = useUploadModal();
+const { exportIntrareIesireCSV } = useExportCSV();
+const { finishLoading } = usePageLoad();
+
 const currentYear = ref(selectedYear.value);
 
 const availableYears = computed(() => {
@@ -249,47 +252,16 @@ const onAddSuccess = () => {
   closeModal();
 };
 
-const exportToExcel = () => {
-  const headers = [
-    "Nr. Înregistrare",
-    "Data Înregistrării",
-    "Nr. Document",
-    "Data Document",
-    "Emitent",
-    "Conținut",
-    "Compartiment",
-    "Data Expedierii",
-    "Destinatar",
-  ];
-
-  const rows = entries.value.map((entry: any) => [
-    entry.nrInregistrare,
-    formatDate(entry.dataInregistrarii),
-    entry.nrSiDataDocument?.numar || "",
-    entry.nrSiDataDocument?.data ? formatDate(entry.nrSiDataDocument.data) : "",
-    entry.emitent || "",
-    entry.continutPeScurt,
-    entry.compartimentSiSemnatura || "",
-    entry.dataExpedierii ? formatDate(entry.dataExpedierii) : "",
-    entry.destinatar || "",
-  ]);
-
-  const csvContent = [
-    headers.join(","),
-    ...rows.map((row: any) => row.map((cell: any) => `"${cell}"`).join(",")),
-  ].join("\n");
-
-  const blob = new Blob(["\ufeff" + csvContent], {
-    type: "text/csv;charset=utf-8;",
-  });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `registru-intrare-iesire-${currentYear.value}.csv`;
-  link.click();
+const handleExport = () => {
+  exportIntrareIesireCSV(entries.value, currentYear.value);
 };
 
-onMounted(() => {
-  fetchEntries();
+onMounted(async () => {
+  try {
+    await fetchEntries();
+  } finally {
+    finishLoading();
+  }
 });
 </script>
 
