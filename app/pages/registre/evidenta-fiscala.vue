@@ -198,7 +198,11 @@ const loadData = async () => {
       totals.value.venituri = data.value.totals.incasari;
       totals.value.cheltuieli = data.value.totals.plati;
       totals.value.profit = totals.value.venituri - totals.value.cheltuieli;
-      taxe.value = calculate(totals.value.venituri, totals.value.cheltuieli);
+      taxe.value = calculate(
+        totals.value.venituri,
+        totals.value.cheltuieli,
+        selectedYear.value
+      );
     }
   } catch (error) {
     console.error("Error loading data:", error);

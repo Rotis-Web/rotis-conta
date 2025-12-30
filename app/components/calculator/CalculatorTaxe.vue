@@ -12,9 +12,7 @@
         <div class="flex space-x-4">
           <CustomDropdown
             v-model="selectedYear"
-            :options="
-              years.map((year) => ({ label: year.toString(), value: year }))
-            "
+            :options="years.map((y) => ({ label: y.toString(), value: y }))"
             class="w-25"
             @update:modelValue="calculateFromRegistru"
           />
@@ -72,10 +70,11 @@
 
     <div class="bg-indigo-50 p-4 rounded-lg">
       <p class="text-sm font-medium text-indigo-900 mb-2">
-        📊 Praguri fiscale {{ new Date().getFullYear() }}:
+        📊 Praguri fiscale {{ selectedYear }}:
       </p>
+
       <div
-        class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-indigo-800"
+        class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-indigo-800"
       >
         <div>
           <span class="font-medium">Salariu minim brut:</span>
@@ -83,13 +82,27 @@
             formatCurrency(thresholds.SALARIU_MINIM_BRUT)
           }}</span>
         </div>
+
         <div>
           <span class="font-medium">Prag CAS:</span>
-          <span class="ml-1">{{ formatCurrency(thresholds.CAS_PRAG) }}</span>
+          <span class="ml-1">{{ formatCurrency(thresholds.CAS_PRAG_12) }}</span>
+          <span class="ml-1 text-xs text-indigo-700">(12×)</span>
         </div>
+
         <div>
-          <span class="font-medium">Prag CASS:</span>
-          <span class="ml-1">{{ formatCurrency(thresholds.CASS_PRAG) }}</span>
+          <span class="font-medium">Prag CAS superior:</span>
+          <span class="ml-1">{{ formatCurrency(thresholds.CAS_PRAG_24) }}</span>
+          <span class="ml-1 text-xs text-indigo-700">(24×)</span>
+        </div>
+
+        <div>
+          <span class="font-medium">Bază CASS (min / max):</span>
+          <span class="ml-1">{{
+            formatCurrency(thresholds.CASS_MIN_BASE)
+          }}</span>
+          <span class="mx-1">/</span>
+          <span>{{ formatCurrency(thresholds.CASS_MAX_BASE) }}</span>
+          <span class="ml-1 text-xs text-indigo-700">(6× / 60×)</span>
         </div>
       </div>
     </div>
@@ -101,25 +114,25 @@
         <div class="space-y-3">
           <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
             <span class="text-sm font-medium text-gray-700">Venit Brut:</span>
-            <span class="text-sm font-bold text-gray-900">{{
-              formatCurrency(result.venit)
-            }}</span>
+            <span class="text-sm font-bold text-gray-900">
+              {{ formatCurrency(result.venit) }}
+            </span>
           </div>
 
           <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
             <span class="text-sm font-medium text-gray-700">Cheltuieli:</span>
-            <span class="text-sm font-bold text-gray-900">{{
-              formatCurrency(result.cheltuieli)
-            }}</span>
+            <span class="text-sm font-bold text-gray-900">
+              {{ formatCurrency(result.cheltuieli) }}
+            </span>
           </div>
 
           <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
             <span class="text-sm font-medium text-blue-800"
               >Bază Impozabilă:</span
             >
-            <span class="text-sm font-bold text-blue-900">{{
-              formatCurrency(result.baza)
-            }}</span>
+            <span class="text-sm font-bold text-blue-900">
+              {{ formatCurrency(result.baza) }}
+            </span>
           </div>
 
           <div class="border-t border-gray-200 pt-2 space-y-2">
@@ -136,13 +149,20 @@
                 >
                   CAS (25%):
                 </span>
+
                 <span
                   v-if="!result.casApplicabil"
                   class="text-xs text-gray-500"
                 >
-                  Sub pragul de {{ formatCurrency(result.pragCas) }}
+                  Sub pragul de {{ formatCurrency(result.pragCas12) }} (12×
+                  salariul minim)
+                </span>
+
+                <span v-else class="text-xs text-orange-700">
+                  Bază CAS folosită: {{ formatCurrency(result.casBase) }}
                 </span>
               </div>
+
               <span
                 class="text-sm font-bold"
                 :class="
@@ -166,13 +186,20 @@
                 >
                   CASS (10%):
                 </span>
+
                 <span
-                  v-if="!result.cassApplicabil"
-                  class="text-xs text-gray-500"
+                  v-if="result.cassApplicabil"
+                  class="text-xs text-purple-700"
                 >
-                  Sub pragul de {{ formatCurrency(result.pragCass) }}
+                  Bază CASS (încadrată 6×..60×):
+                  {{ formatCurrency(result.cassBase) }}
                 </span>
+
+                <span v-else class="text-xs text-gray-500"
+                  >Nu se aplică (bază 0)</span
+                >
               </div>
+
               <span
                 class="text-sm font-bold"
                 :class="
@@ -186,12 +213,12 @@
             <div
               class="flex justify-between items-center p-3 bg-red-50 rounded"
             >
-              <span class="text-sm font-medium text-red-800"
-                >Impozit pe Venit (10%):</span
-              >
-              <span class="text-sm font-bold text-red-900">{{
-                formatCurrency(result.impozit)
-              }}</span>
+              <span class="text-sm font-medium text-red-800">
+                Impozit pe Venit (10%):
+              </span>
+              <span class="text-sm font-bold text-red-900">
+                {{ formatCurrency(result.impozit) }}
+              </span>
             </div>
 
             <div
@@ -200,9 +227,9 @@
               <span class="text-base font-bold text-red-800"
                 >TOTAL DE PLATĂ:</span
               >
-              <span class="text-base font-bold text-red-900">{{
-                formatCurrency(result.total)
-              }}</span>
+              <span class="text-base font-bold text-red-900">
+                {{ formatCurrency(result.total) }}
+              </span>
             </div>
 
             <div
@@ -211,9 +238,9 @@
               <span class="text-base font-bold text-green-800"
                 >Profit Net:</span
               >
-              <span class="text-base font-bold text-green-900">{{
-                formatCurrency(result.net)
-              }}</span>
+              <span class="text-base font-bold text-green-900">
+                {{ formatCurrency(result.net) }}
+              </span>
             </div>
           </div>
         </div>
@@ -224,31 +251,35 @@
           <p class="font-medium mb-2">ℹ️ Informații importante:</p>
           <ul class="list-disc list-inside space-y-1">
             <li>
-              <strong>CAS (25%):</strong> Se plătește doar dacă venitul brut
-              anual depășește {{ formatCurrency(result.pragCas) }} (12 ×
-              salariul minim brut)
+              <strong>CAS (25%):</strong> Se datorează dacă venitul net anual
+              (venit − cheltuieli) depășește
+              {{ formatCurrency(result.pragCas12) }} (12× salariul minim). Baza
+              CAS este 12× sau 24× ({{ formatCurrency(result.pragCas24) }}) în
+              funcție de venit.
             </li>
             <li>
-              <strong>CASS (10%):</strong> Se plătește doar dacă venitul brut
-              anual depășește {{ formatCurrency(result.pragCass) }} (12 ×
-              salariul minim brut pentru PFA stabilit)
+              <strong>CASS (10%):</strong> Se calculează la o bază încadrată
+              între {{ formatCurrency(result.cassMinBase) }} (6×) și
+              {{ formatCurrency(result.cassMaxBase) }} (60×), în funcție de
+              venitul net anual.
             </li>
             <li>
-              <strong>Impozit pe venit (10%):</strong> Se aplică întotdeauna pe
-              baza impozabilă (venit - cheltuieli)
+              <strong>Impozit pe venit (10%):</strong> Se aplică pe baza
+              impozabilă (venit − cheltuieli).
             </li>
             <li>
-              Aceste procente și praguri sunt valabile pentru
-              {{ new Date().getFullYear() }}
+              Pragurile afișate sunt pentru anul selectat:
+              <strong>{{ selectedYear }}</strong
+              >.
             </li>
             <li>
-              Salariul minim brut:
+              Salariul minim brut (an selectat):
               {{ formatCurrency(result.salariuMinim) }}/lună
             </li>
             <li>
               <strong
                 >Consultați un contabil pentru cazuri specifice și actualizări
-                legislative</strong
+                legislative.</strong
               >
             </li>
           </ul>
@@ -259,30 +290,25 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  middleware: "auth",
-});
+definePageMeta({ middleware: "auth" });
 
-const { calculate, calculateFromIncasariPlati, thresholds } =
+const { calculate, calculateFromIncasariPlati, thresholdsFor } =
   useCalculatorTaxe();
 const { finishLoading } = usePageLoad();
 
 const selectedYear = ref(new Date().getFullYear());
-const manualInput = ref({
-  venit: 0,
-  cheltuieli: 0,
-});
+const manualInput = ref({ venit: 0, cheltuieli: 0 });
 const result = ref<any>(null);
 
 const years = computed(() => {
-  const years = [];
+  const arr: number[] = [];
   const startYear = 2020;
   const endYear = new Date().getFullYear();
-  for (let year = endYear; year >= startYear; year--) {
-    years.push(year);
-  }
-  return years;
+  for (let y = endYear; y >= startYear; y--) arr.push(y);
+  return arr;
 });
+
+const thresholds = computed(() => thresholdsFor(selectedYear.value));
 
 const calculateFromRegistru = async () => {
   const data = await calculateFromIncasariPlati(selectedYear.value);
@@ -296,16 +322,15 @@ const calculateFromRegistru = async () => {
 const calculateManual = () => {
   result.value = calculate(
     manualInput.value.venit,
-    manualInput.value.cheltuieli
+    manualInput.value.cheltuieli,
+    selectedYear.value
   );
 };
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("ro-RO", {
-    style: "currency",
-    currency: "RON",
-  }).format(amount);
-};
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("ro-RO", { style: "currency", currency: "RON" }).format(
+    amount
+  );
 
 onMounted(() => {
   finishLoading();
