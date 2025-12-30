@@ -209,6 +209,11 @@
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
+                Metodă
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Încasări
               </th>
               <th
@@ -224,40 +229,74 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="entry in registreStore.incasariPlati" :key="entry._id">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ entry.nrCrt }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ formatDate(entry.data) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ entry.document?.tip }} {{ entry.document?.numar }}
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-900">
-                {{ entry.felulOperatiunii }}
-              </td>
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600"
-              >
-                {{
-                  entry.tip === "incasare" ? formatCurrency(entry.suma) : "-"
-                }}
-              </td>
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600"
-              >
-                {{ entry.tip === "plata" ? formatCurrency(entry.suma) : "-" }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <button
-                  @click="handleDelete(entry._id)"
-                  class="text-red-600 hover:text-red-900"
+            <template
+              v-for="(item, index) in entriesWithMonthlyTotals"
+              :key="item.id"
+            >
+              <tr v-if="item.isMonthTotal" class="bg-indigo-50 font-semibold">
+                <td colspan="3" class="px-6 py-3 text-sm text-indigo-900">
+                  Total {{ item.monthName }}
+                </td>
+                <td class="px-6 py-3"></td>
+                <td class="px-6 py-3"></td>
+                <td class="px-6 py-3 text-sm text-green-700">
+                  {{ formatCurrency(item.incasari) }}
+                </td>
+                <td class="px-6 py-3 text-sm text-red-700">
+                  {{ formatCurrency(item.plati) }}
+                </td>
+                <td class="px-6 py-3 text-sm text-blue-700">
+                  Sold: {{ formatCurrency(item.sold) }}
+                </td>
+              </tr>
+
+              <tr v-else>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ item.nrCrt }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatDate(item.data) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{ item.document?.tip }} {{ item.document?.numar }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  {{ item.felulOperatiunii }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    :class="
+                      item.metodaPlata === 'banca'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-green-100 text-green-800'
+                    "
+                  >
+                    {{ item.metodaPlata === "banca" ? "Bancă" : "Numerar" }}
+                  </span>
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600"
                 >
-                  Șterge
-                </button>
-              </td>
-            </tr>
+                  {{
+                    item.tip === "incasare" ? formatCurrency(item.suma) : "-"
+                  }}
+                </td>
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600"
+                >
+                  {{ item.tip === "plata" ? formatCurrency(item.suma) : "-" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <button
+                    @click="handleDelete(item._id)"
+                    class="text-red-600 hover:text-red-900"
+                  >
+                    Șterge
+                  </button>
+                </td>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -303,6 +342,64 @@ const yearOptions = computed(() => {
     value: year,
     label: year.toString(),
   }));
+});
+
+const entriesWithMonthlyTotals = computed(() => {
+  const entries = registreStore.incasariPlati;
+  if (entries.length === 0) return [];
+
+  const result: any[] = [];
+  let currentMonth: number | null = null;
+  let monthlyIncasari = 0;
+  let monthlyPlati = 0;
+  let nrCrt = 1;
+
+  entries.forEach((entry, index) => {
+    const entryDate = new Date(entry.data);
+    const entryMonth = entryDate.getMonth() + 1;
+
+    if (currentMonth !== null && currentMonth !== entryMonth) {
+      result.push({
+        id: `total-${currentMonth}`,
+        isMonthTotal: true,
+        monthName: getMonthName(currentMonth),
+        incasari: monthlyIncasari,
+        plati: monthlyPlati,
+        sold: monthlyIncasari - monthlyPlati,
+      });
+
+      monthlyIncasari = 0;
+      monthlyPlati = 0;
+    }
+
+    currentMonth = entryMonth;
+
+    result.push({
+      ...entry,
+      id: entry._id,
+      nrCrt: nrCrt++,
+      isMonthTotal: false,
+    });
+
+    if (entry.tip === "incasare") {
+      monthlyIncasari += entry.suma;
+    } else {
+      monthlyPlati += entry.suma;
+    }
+
+    if (index === entries.length - 1) {
+      result.push({
+        id: `total-${currentMonth}`,
+        isMonthTotal: true,
+        monthName: getMonthName(currentMonth),
+        incasari: monthlyIncasari,
+        plati: monthlyPlati,
+        sold: monthlyIncasari - monthlyPlati,
+      });
+    }
+  });
+
+  return result;
 });
 
 const formatCurrency = (amount: number) => {

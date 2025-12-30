@@ -31,7 +31,12 @@ const incasarePlataSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  banca: String,
+  metodaPlata: {
+    type: String,
+    enum: ["banca", "numerar"],
+    required: true,
+    default: "banca",
+  },
   an: {
     type: Number,
     required: true,

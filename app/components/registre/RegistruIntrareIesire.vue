@@ -12,12 +12,7 @@
           <div class="w-25">
             <CustomDropdown
               v-model="currentYear"
-              :options="
-                availableYears.map((year) => ({
-                  label: year.toString(),
-                  value: year,
-                }))
-              "
+              :options="yearOptions"
               @update:modelValue="onYearChange"
             />
           </div>
@@ -70,7 +65,7 @@
 
       <div class="mt-4 text-sm text-gray-600">
         Total înregistrări {{ currentYear }}:
-        <span class="font-semibold">{{ entries.length }}</span>
+        <span class="font-semibold">{{ totalEntries }}</span>
       </div>
     </div>
 
@@ -81,10 +76,7 @@
         ></div>
       </div>
 
-      <div
-        v-else-if="entries.length === 0"
-        class="p-6 text-center text-gray-500"
-      >
+      <div v-else-if="totalEntries === 0" class="p-6 text-center text-gray-500">
         Nu există înregistrări pentru anul {{ currentYear }}
       </div>
 
@@ -95,8 +87,7 @@
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Nr. de înregistrare la care se conexează și indicatorul
-                dosarului
+                Nr. Înreg.
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -116,12 +107,12 @@
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Conținutul pe scurt al documentului
+                Conținutul pe scurt
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Compartimentul și semnătura de primire
+                Compartiment
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -141,56 +132,67 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr
-              v-for="entry in entries"
-              :key="entry._id"
-              class="hover:bg-gray-50"
+            <template
+              v-for="(item, index) in entriesWithMonthlyTotals"
+              :key="item.id"
             >
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-              >
-                {{ entry.nrInregistrare }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ formatDate(entry.dataInregistrarii) }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div v-if="entry.nrSiDataDocument">
-                  <div>Nr: {{ entry.nrSiDataDocument.numar }}</div>
-                  <div class="text-xs text-gray-400">
-                    {{ formatDate(entry.nrSiDataDocument.data) }}
-                  </div>
-                </div>
-                <div v-else class="text-gray-400">-</div>
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-900">
-                {{ entry.emitent || "-" }}
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-900 max-w-xs">
-                <div class="line-clamp-2" :title="entry.continutPeScurt">
-                  {{ entry.continutPeScurt }}
-                </div>
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-500">
-                {{ entry.compartimentSiSemnatura || "-" }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{
-                  entry.dataExpedierii ? formatDate(entry.dataExpedierii) : "-"
-                }}
-              </td>
-              <td class="px-6 py-4 text-sm text-gray-500">
-                {{ entry.destinatar || "-" }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
-                <button
-                  @click="handleDelete(entry._id)"
-                  class="text-red-600 hover:text-red-900"
+              <tr v-if="item.isMonthTotal" class="bg-purple-50 font-semibold">
+                <td colspan="2" class="px-6 py-3 text-sm text-purple-900">
+                  Total {{ item.monthName }}
+                </td>
+                <td colspan="6" class="px-6 py-3 text-sm text-purple-700">
+                  Număr înregistrări: {{ item.count }}
+                </td>
+                <td class="px-6 py-3"></td>
+              </tr>
+
+              <tr v-else class="hover:bg-gray-50">
+                <td
+                  class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
                 >
-                  Șterge
-                </button>
-              </td>
-            </tr>
+                  {{ item.nrCrt }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ formatDate(item.dataInregistrarii) }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <div v-if="item.nrSiDataDocument">
+                    <div>Nr: {{ item.nrSiDataDocument.numar }}</div>
+                    <div class="text-xs text-gray-400">
+                      {{ formatDate(item.nrSiDataDocument.data) }}
+                    </div>
+                  </div>
+                  <div v-else class="text-gray-400">-</div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900">
+                  {{ item.emitent || "-" }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                  <div class="line-clamp-2" :title="item.continutPeScurt">
+                    {{ item.continutPeScurt }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  {{ item.compartimentSiSemnatura || "-" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {{
+                    item.dataExpedierii ? formatDate(item.dataExpedierii) : "-"
+                  }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                  {{ item.destinatar || "-" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <button
+                    @click="handleDelete(item._id)"
+                    class="text-red-600 hover:text-red-900"
+                  >
+                    Șterge
+                  </button>
+                </td>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -212,20 +214,15 @@ definePageMeta({
   middleware: "auth",
 });
 
-const {
-  entries,
-  loading,
-  selectedYear,
-  fetchEntries,
-  deleteEntry,
-  changeYear,
-} = useRegistreIntrareIesire();
-
+const registreStore = useRegistreStore();
 const { isOpen, openModal, closeModal } = useUploadModal();
 const { exportIntrareIesireCSV } = useExportCSV();
 const { finishLoading } = usePageLoad();
 
-const currentYear = ref(selectedYear.value);
+const currentYear = ref(registreStore.iiSelectedYear);
+const loading = computed(() => registreStore.loading);
+
+const totalEntries = computed(() => registreStore.intrareIesire.length);
 
 const availableYears = computed(() => {
   const years = [];
@@ -237,18 +234,96 @@ const availableYears = computed(() => {
   return years;
 });
 
+const yearOptions = computed(() => {
+  return availableYears.value.map((year) => ({
+    value: year,
+    label: year.toString(),
+  }));
+});
+
+const entriesWithMonthlyTotals = computed(() => {
+  const entries = registreStore.intrareIesire;
+  if (entries.length === 0) return [];
+
+  const result: any[] = [];
+  let currentMonth: number | null = null;
+  let monthlyCount = 0;
+  let nrCrt = 1;
+
+  entries.forEach((entry, index) => {
+    const entryDate = new Date(entry.dataInregistrarii);
+    const entryMonth = entryDate.getMonth() + 1;
+
+    if (currentMonth !== null && currentMonth !== entryMonth) {
+      result.push({
+        id: `total-${currentMonth}`,
+        isMonthTotal: true,
+        monthName: getMonthName(currentMonth),
+        count: monthlyCount,
+      });
+
+      monthlyCount = 0;
+    }
+
+    currentMonth = entryMonth;
+
+    result.push({
+      ...entry,
+      id: entry._id,
+      nrCrt: nrCrt++,
+      isMonthTotal: false,
+    });
+
+    monthlyCount++;
+
+    if (index === entries.length - 1) {
+      result.push({
+        id: `total-${currentMonth}`,
+        isMonthTotal: true,
+        monthName: getMonthName(currentMonth),
+        count: monthlyCount,
+      });
+    }
+  });
+
+  return result;
+});
+
 const formatDate = (date: string | Date) => {
   if (!date) return "-";
   return format(new Date(date), "dd.MM.yyyy", { locale: ro });
 };
 
-const onYearChange = () => {
-  changeYear(currentYear.value);
+const getMonthName = (month: number) => {
+  const months = [
+    "Ianuarie",
+    "Februarie",
+    "Martie",
+    "Aprilie",
+    "Mai",
+    "Iunie",
+    "Iulie",
+    "August",
+    "Septembrie",
+    "Octombrie",
+    "Noiembrie",
+    "Decembrie",
+  ];
+  return months[month - 1];
+};
+
+const onYearChange = async () => {
+  await registreStore.changeIntrareIesireYear(currentYear.value);
 };
 
 const handleDelete = async (id: string) => {
   if (confirm("Sigur vrei să ștergi această înregistrare?")) {
-    await deleteEntry(id);
+    try {
+      await registreStore.deleteIntrareIesire(id);
+    } catch (error) {
+      console.error("Error deleting entry:", error);
+      alert("Eroare la ștergere");
+    }
   }
 };
 
@@ -257,12 +332,14 @@ const onAddSuccess = () => {
 };
 
 const handleExport = () => {
-  exportIntrareIesireCSV(entries.value, currentYear.value);
+  exportIntrareIesireCSV(registreStore.intrareIesire, currentYear.value);
 };
 
 onMounted(async () => {
   try {
-    await fetchEntries();
+    if (!registreStore.iiInitialized) {
+      await registreStore.fetchIntrareIesire(currentYear.value);
+    }
   } catch (error) {
     console.error("Error loading data:", error);
   } finally {

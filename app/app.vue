@@ -178,10 +178,6 @@ useHead({
       rel: "manifest",
       href: "/site.webmanifest",
     },
-    {
-      rel: "canonical",
-      href: siteUrl,
-    },
   ],
 });
 

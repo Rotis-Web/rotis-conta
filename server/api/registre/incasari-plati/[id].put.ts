@@ -1,3 +1,4 @@
+// server/api/registre/incasari-plati/[id].patch.ts
 import { IncasarePlata } from "../../../models/IncasarePlata";
 
 export default defineEventHandler(async (event) => {
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
   if (body.felulOperatiunii) entry.felulOperatiunii = body.felulOperatiunii;
   if (body.tip) entry.tip = body.tip;
   if (body.suma !== undefined) entry.suma = body.suma;
-  if (body.banca) entry.banca = body.banca;
+  if (body.metodaPlata) entry.metodaPlata = body.metodaPlata;
 
   await entry.save();
 

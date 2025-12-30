@@ -28,7 +28,7 @@ export interface IncasarePlata {
   felulOperatiunii: string;
   tip: "incasare" | "plata";
   suma: number;
-  banca?: string;
+  metodaPlata: "banca" | "numerar";
   an: number;
   luna: number;
 }

@@ -67,9 +67,18 @@ export const useRegistreStore = defineStore("registre", {
         }>("/api/registre/incasari-plati", { params });
 
         this.incasariPlati = data.entries.sort(
-          (a: IncasarePlata, b: IncasarePlata) =>
-            (a.nrCrt || 0) - (b.nrCrt || 0)
+          (a: IncasarePlata, b: IncasarePlata) => {
+            const dateA = new Date(a.data).getTime();
+            const dateB = new Date(b.data).getTime();
+
+            if (dateA !== dateB) {
+              return dateA - dateB;
+            }
+
+            return (a.nrCrt || 0) - (b.nrCrt || 0);
+          }
         );
+
         this.ipTotals = data.totals;
         this.ipByMonth = data.byMonth;
         this.ipInitialized = true;
@@ -186,15 +195,16 @@ export const useRegistreStore = defineStore("registre", {
 
         this.intrareIesire = data.entries.sort(
           (a: IntrareIesire, b: IntrareIesire) => {
-            const aNum = parseInt(a.nrInregistrare || (0 as any));
-            const bNum = parseInt(b.nrInregistrare || (0 as any));
-            if (!isNaN(aNum) && !isNaN(bNum)) {
-              return aNum - bNum;
+            const dateA = new Date(a.dataInregistrarii).getTime();
+            const dateB = new Date(b.dataInregistrarii).getTime();
+
+            if (dateA !== dateB) {
+              return dateA - dateB;
             }
-            return (
-              new Date(a.dataInregistrarii).getTime() -
-              new Date(b.dataInregistrarii).getTime()
-            );
+
+            const aNum = parseInt(a.nrInregistrare as any) || 0;
+            const bNum = parseInt(b.nrInregistrare as any) || 0;
+            return aNum - bNum;
           }
         );
 

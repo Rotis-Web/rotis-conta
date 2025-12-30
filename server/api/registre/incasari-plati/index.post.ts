@@ -4,7 +4,13 @@ export default defineEventHandler(async (event) => {
   const user = event.context.user;
   const body = await readBody(event);
 
-  if (!body.data || !body.felulOperatiunii || !body.tip || !body.suma) {
+  if (
+    !body.data ||
+    !body.felulOperatiunii ||
+    !body.tip ||
+    !body.suma ||
+    !body.metodaPlata
+  ) {
     throw createError({
       statusCode: 400,
       message: "Date incomplete",
@@ -32,7 +38,7 @@ export default defineEventHandler(async (event) => {
     felulOperatiunii: body.felulOperatiunii,
     tip: body.tip,
     suma: body.suma,
-    banca: body.banca,
+    metodaPlata: body.metodaPlata,
     an,
     luna,
   });

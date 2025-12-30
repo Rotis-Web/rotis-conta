@@ -61,34 +61,70 @@
                 </div>
 
                 <div>
-                  <label
-                    class="block text-sm font-medium text-gray-700 mb-2"
-                    for="tip"
-                  >
+                  <p class="block text-sm font-medium text-gray-700 mb-2">
                     Tip operațiune *
-                  </label>
+                  </p>
                   <div class="flex space-x-4">
-                    <label class="flex items-center" for="tip">
+                    <label
+                      class="flex items-center cursor-pointer"
+                      for="incasare"
+                    >
                       <input
                         v-model="form.tip"
                         type="radio"
-                        name="tip"
-                        id="tip"
-                        value="tip"
-                        checked
+                        name="incasare"
+                        id="incasare"
+                        value="incasare"
                         class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 cursor-pointer"
                       />
                       <span class="ml-2 text-sm text-gray-700">Încasare</span>
                     </label>
-                    <label class="flex items-center" for="tip">
+                    <label class="flex items-center cursor-pointer" for="plata">
                       <input
                         v-model="form.tip"
                         type="radio"
-                        name="tip"
-                        value="tip"
+                        name="plata"
+                        id="plata"
+                        value="plata"
                         class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 cursor-pointer"
                       />
                       <span class="ml-2 text-sm text-gray-700">Plată</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="block text-sm font-medium text-gray-700 mb-2">
+                    Metodă plată *
+                  </p>
+                  <div class="flex space-x-4">
+                    <label
+                      class="flex items-center cursor-pointer"
+                      for="plataBanca"
+                    >
+                      <input
+                        v-model="form.metodaPlata"
+                        id="plataBanca"
+                        type="radio"
+                        name="plataBanca"
+                        value="banca"
+                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 cursor-pointer"
+                      />
+                      <span class="ml-2 text-sm text-gray-700">Bancă</span>
+                    </label>
+                    <label
+                      class="flex items-center cursor-pointer"
+                      for="plataNumerar"
+                    >
+                      <input
+                        v-model="form.metodaPlata"
+                        id="plataNumerar"
+                        type="radio"
+                        name="plataNumerar"
+                        value="numerar"
+                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 cursor-pointer"
+                      />
+                      <span class="ml-2 text-sm text-gray-700">Numerar</span>
                     </label>
                   </div>
                 </div>
@@ -189,23 +225,6 @@
                   />
                 </div>
 
-                <div>
-                  <label
-                    class="block text-sm font-medium text-gray-700 mb-1"
-                    for="banca"
-                  >
-                    Bancă
-                  </label>
-                  <input
-                    v-model="form.banca"
-                    type="text"
-                    name="banca"
-                    id="banca"
-                    placeholder="Ex: BCR, BRD, ING"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-
                 <div class="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
@@ -213,7 +232,7 @@
                     name="cancel"
                     id="cancel"
                     @click="$emit('close')"
-                    class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                   >
                     Anulează
                   </button>
@@ -246,18 +265,29 @@ const { addEntry } = useRegistreIncasariPlati();
 
 const form = ref({
   tip: "incasare" as "incasare" | "plata",
+  metodaPlata: "banca" as "banca" | "numerar",
   data: new Date().toISOString().split("T")[0],
   document: {
     tip: "",
     numar: "",
   },
   felulOperatiunii: "",
-  suma: "",
-  banca: "",
+  suma: 0,
 });
 
 const loading = ref(false);
 const error = ref("");
+
+const resetForm = () => {
+  form.value = {
+    tip: "incasare",
+    metodaPlata: "banca",
+    data: new Date().toISOString().split("T")[0],
+    document: { tip: "", numar: "" },
+    felulOperatiunii: "",
+    suma: 0,
+  };
+};
 
 const handleSubmit = async () => {
   loading.value = true;
@@ -267,15 +297,7 @@ const handleSubmit = async () => {
     await addEntry(form.value);
     emit("success");
     emit("close");
-
-    form.value = {
-      tip: "incasare",
-      data: new Date().toISOString().split("T")[0],
-      document: { tip: "", numar: "" },
-      felulOperatiunii: "",
-      suma: "",
-      banca: "",
-    };
+    resetForm();
   } catch (err: any) {
     error.value = err.message;
   } finally {
