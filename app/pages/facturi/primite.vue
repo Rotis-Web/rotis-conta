@@ -8,6 +8,9 @@
 
         <div class="flex items-center gap-3">
           <button
+            type="button"
+            name="add"
+            id="add"
             @click="openModal"
             class="md:hidden flex items-center justify-center w-8 h-8 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors shadow-lg"
           >

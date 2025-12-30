@@ -73,6 +73,9 @@
                 </svg>
               </a>
               <button
+                type="button"
+                name="delete"
+                id="delete"
                 @click="handleDelete(doc._id)"
                 class="p-2 text-red-600 hover:text-red-900"
                 title="Șterge"

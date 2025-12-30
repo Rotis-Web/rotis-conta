@@ -19,6 +19,7 @@
           <button
             type="button"
             id="calculate"
+            name="calculate"
             aria-label="Calculate"
             @click="calculateFromRegistru"
             class="px-4 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
@@ -68,7 +69,7 @@
       </div>
     </div>
 
-    <div class="bg-indigo-50 p-4 rounded-lg">
+    <!-- <div class="bg-indigo-50 p-4 rounded-lg">
       <p class="text-sm font-medium text-indigo-900 mb-2">
         📊 Praguri fiscale {{ selectedYear }}:
       </p>
@@ -105,7 +106,7 @@
           <span class="ml-1 text-xs text-indigo-700">(6× / 60×)</span>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <div v-if="result" class="space-y-4">
       <div class="border-t border-gray-200 pt-4">

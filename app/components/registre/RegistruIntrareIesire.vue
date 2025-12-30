@@ -18,6 +18,9 @@
           </div>
 
           <button
+            type="button"
+            name="add"
+            id="add"
             @click="openModal"
             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
           >
@@ -185,6 +188,9 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <button
+                    type="button"
+                    name="delete"
+                    id="delete"
                     @click="handleDelete(item._id)"
                     class="text-red-600 hover:text-red-900"
                   >
