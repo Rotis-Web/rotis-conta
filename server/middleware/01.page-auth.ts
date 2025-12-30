@@ -3,7 +3,6 @@ import { verifyToken } from "../utils/jwt";
 export default defineEventHandler(async (event) => {
   const url = event.node.req.url || "";
 
-  // Only handle page requests (not API, not static files)
   if (
     url.startsWith("/api") ||
     url.startsWith("/_nuxt") ||
@@ -21,6 +20,7 @@ export default defineEventHandler(async (event) => {
     "/facturi",
     "/documente",
     "/calculator",
+    "/setari",
   ];
   const authRoutes = ["/login", "/register"];
 
@@ -39,7 +39,6 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // Redirect logic
   if (isProtectedRoute && !isAuthenticated) {
     return sendRedirect(event, "/login", 302);
   }

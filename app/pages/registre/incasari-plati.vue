@@ -1,13 +1,19 @@
-  <template>
-    <div>
-      <RegistruIncasariPlati />
-    </div>
-  </template>
+<template>
+  <div>
+    <RegistruIncasariPlati />
+  </div>
+</template>
 
-  <script setup>
-  import RegistruIncasariPlati from "~/components/registre/RegistruIncasariPlati.vue";
+<script setup>
+const { finishLoading } = usePageLoad();
 
-  definePageMeta({
-    middleware: "auth",
-  });
-  </script>
+onMounted(() => {
+  finishLoading();
+});
+
+import RegistruIncasariPlati from "~/components/registre/RegistruIncasariPlati.vue";
+
+definePageMeta({
+  middleware: "auth",
+});
+</script>

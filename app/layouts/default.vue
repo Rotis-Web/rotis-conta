@@ -189,6 +189,14 @@
                 >
                   Intrare-Ieșire
                 </NuxtLink>
+                <NuxtLink
+                  to="/registre/evidenta-fiscala"
+                  @click="mobileMenuOpen = false"
+                  class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-800 hover:text-white"
+                  active-class="bg-gray-800 text-white"
+                >
+                  Evidență Fiscală
+                </NuxtLink>
               </div>
             </div>
 
@@ -395,6 +403,13 @@
                 active-class="bg-gray-800 text-white"
               >
                 Intrare-Ieșire
+              </NuxtLink>
+              <NuxtLink
+                to="/registre/evidenta-fiscala"
+                class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-800 hover:text-white"
+                active-class="bg-gray-800 text-white"
+              >
+                Evidență Fiscală
               </NuxtLink>
             </div>
           </div>

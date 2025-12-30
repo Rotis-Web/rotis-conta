@@ -1,11 +1,11 @@
 <template>
   <div class="space-y-6">
     <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-2xl font-bold text-gray-900 mb-4">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-6">
         Registru de Evidență Fiscală
       </h2>
 
-      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+      <!-- <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg
@@ -27,29 +27,27 @@
             </p>
           </div>
         </div>
-      </div>
+      </div> -->
 
-      <!-- Selector an -->
       <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Anul</label>
-        <select
-          v-model="selectedYear"
-          @change="loadData"
-          class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-        >
-          <option v-for="year in availableYears" :key="year" :value="year">
-            {{ year }}
-          </option>
-        </select>
+        <!-- <label class="block text-sm font-medium text-gray-700 mb-2">Anul</label> -->
+        <div class="w-25">
+          <CustomDropdown
+            v-model="selectedYear"
+            :options="
+              availableYears.map((year : number) => ({ label: year.toString(), value: year }))
+            "
+            @change="handleYearChange"
+          />
+        </div>
       </div>
 
-      <!-- Raport anual -->
       <div class="bg-gray-50 p-6 rounded-lg mb-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-6">
           Raport Anual {{ selectedYear }}
         </h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
           <div>
             <h4 class="text-sm font-medium text-gray-700 mb-3">Venituri</h4>
             <div class="space-y-2">
@@ -87,51 +85,78 @@
         </div>
       </div>
 
-      <!-- Calculatorul de taxe -->
       <div class="bg-blue-50 p-6 rounded-lg">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-6">
           Obligații Fiscale Estimate
         </h3>
 
         <div v-if="taxe" class="space-y-3">
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-700">CAS (25%):</span>
+          <div
+            class="flex justify-between"
+            :class="taxe.casApplicabil ? '' : 'opacity-50'"
+          >
+            <div class="flex flex-col">
+              <span class="text-sm text-gray-700">CAS (25%):</span>
+              <span v-if="!taxe.casApplicabil" class="text-xs text-gray-500">
+                Nu se aplică (sub prag)
+              </span>
+            </div>
             <span class="text-sm font-semibold">{{
               formatCurrency(taxe.cas)
             }}</span>
           </div>
-          <div class="flex justify-between">
-            <span class="text-sm text-gray-700">CASS (10%):</span>
+
+          <div
+            class="flex justify-between"
+            :class="taxe.cassApplicabil ? '' : 'opacity-50'"
+          >
+            <div class="flex flex-col">
+              <span class="text-sm text-gray-700">CASS (10%):</span>
+              <span v-if="!taxe.cassApplicabil" class="text-xs text-gray-500">
+                Nu se aplică (sub prag)
+              </span>
+            </div>
             <span class="text-sm font-semibold">{{
               formatCurrency(taxe.cass)
             }}</span>
           </div>
+
           <div class="flex justify-between">
             <span class="text-sm text-gray-700">Impozit pe venit (10%):</span>
             <span class="text-sm font-semibold">{{
               formatCurrency(taxe.impozit)
             }}</span>
           </div>
+
           <div class="flex justify-between pt-3 border-t border-blue-200">
-            <span class="text-base font-medium text-gray-900"
-              >Total taxe de plată:</span
-            >
+            <span class="text-base font-medium text-gray-900">Total taxe:</span>
             <span class="text-lg font-bold text-red-600">{{
               formatCurrency(taxe.total)
             }}</span>
           </div>
         </div>
 
-        <div class="mt-4 text-xs text-gray-600">
-          * Calculele sunt orientative. Consultați un contabil pentru valori
-          exacte.
+        <div class="mt-4 text-xs text-gray-600 space-y-1">
+          <p>
+            * Calculele sunt orientative și țin cont de pragurile fiscale din
+            {{ selectedYear }}.
+          </p>
+          <p>
+            * CAS și CASS se calculează doar dacă venitul depășește pragurile
+            legale.
+          </p>
+          <p>
+            * Consultați un contabil pentru valori exacte și cazuri specifice.
+          </p>
         </div>
       </div>
 
-      <!-- Export -->
       <div class="mt-6 flex justify-end">
         <button
           @click="exportToExcel"
+          type="button"
+          name="exportExcel"
+          id="exportExcel"
           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
         >
           <svg
@@ -159,6 +184,7 @@ definePageMeta({
   middleware: "auth",
 });
 
+const { finishLoading } = usePageLoad();
 const { calculate } = useCalculatorTaxe();
 const selectedYear = ref(new Date().getFullYear());
 
@@ -197,17 +223,21 @@ const loadData = async () => {
       totals.value.venituri = data.value.totals.incasari;
       totals.value.cheltuieli = data.value.totals.plati;
       totals.value.profit = totals.value.venituri - totals.value.cheltuieli;
-
-      // Calculate taxes
       taxe.value = calculate(totals.value.venituri, totals.value.cheltuieli);
     }
   } catch (error) {
     console.error("Error loading data:", error);
+  } finally {
+    finishLoading();
   }
 };
 
 const exportToExcel = () => {
   alert("Funcționalitate de export în dezvoltare");
+};
+
+const handleYearChange = () => {
+  loadData();
 };
 
 onMounted(() => {

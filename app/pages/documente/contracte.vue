@@ -62,10 +62,12 @@
 
 <script setup lang="ts">
 definePageMeta({ middleware: "auth" });
+
 const currentYear = new Date().getFullYear();
 const selectedYear = ref(currentYear);
 const documentsStore = useDocumentsStore();
 const { isOpen, openModal, closeModal } = useUploadModal();
+const { finishLoading } = usePageLoad();
 
 const availableYears = computed(() => {
   const years = [];
@@ -77,7 +79,18 @@ const availableYears = computed(() => {
 const handleYearChange = (year: number) => {
   selectedYear.value = year;
 };
+
 const handleUploadSuccess = () => {
-  documentsStore.fetchDocuments();
+  documentsStore.fetchDocuments("contract", true);
 };
+
+onMounted(async () => {
+  try {
+    await documentsStore.fetchDocuments("contract");
+  } catch (error) {
+    console.error("Error loading documents:", error);
+  } finally {
+    finishLoading();
+  }
+});
 </script>

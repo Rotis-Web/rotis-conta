@@ -15,6 +15,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     "/facturi",
     "/documente",
     "/calculator",
+    "/setari",
   ];
   const isProtectedRoute = protectedRoutes.some((route) =>
     to.path.startsWith(route)

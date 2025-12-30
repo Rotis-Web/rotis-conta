@@ -5,6 +5,12 @@
 </template>
 
 <script setup>
+const { finishLoading } = usePageLoad();
+
+onMounted(() => {
+  finishLoading();
+});
+
 import RegistruIntrareIesire from "~/components/registre/RegistruIntrareIesire.vue";
 
 definePageMeta({

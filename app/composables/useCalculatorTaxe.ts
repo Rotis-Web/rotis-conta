@@ -1,12 +1,38 @@
+const TAX_THRESHOLDS = {
+  SALARIU_MINIM_BRUT: 3700,
+
+  get CAS_PRAG() {
+    return this.SALARIU_MINIM_BRUT * 12;
+  },
+
+  get CASS_PRAG() {
+    return this.SALARIU_MINIM_BRUT * 12;
+  },
+
+  CAS_RATE: 0.25,
+  CASS_RATE: 0.1,
+  IMPOZIT_RATE: 0.1,
+};
+
 export const useCalculatorTaxe = () => {
   const calculate = (venit: number, cheltuieli: number) => {
-    const baza = venit - cheltuieli;
+    const baza = Math.max(0, venit - cheltuieli);
 
-    const cas = baza * 0.25;
+    let cas = 0;
+    let casApplicabil = false;
+    if (venit >= TAX_THRESHOLDS.CAS_PRAG) {
+      cas = baza * TAX_THRESHOLDS.CAS_RATE;
+      casApplicabil = true;
+    }
 
-    const cass = baza * 0.1;
+    let cass = 0;
+    let cassApplicabil = false;
+    if (venit >= TAX_THRESHOLDS.CASS_PRAG) {
+      cass = baza * TAX_THRESHOLDS.CASS_RATE;
+      cassApplicabil = true;
+    }
 
-    const impozit = baza * 0.1;
+    const impozit = baza * TAX_THRESHOLDS.IMPOZIT_RATE;
 
     const total = cas + cass + impozit;
 
@@ -21,6 +47,11 @@ export const useCalculatorTaxe = () => {
       impozit,
       total,
       net,
+      casApplicabil,
+      cassApplicabil,
+      pragCas: TAX_THRESHOLDS.CAS_PRAG,
+      pragCass: TAX_THRESHOLDS.CASS_PRAG,
+      salariuMinim: TAX_THRESHOLDS.SALARIU_MINIM_BRUT,
     };
   };
 
@@ -45,5 +76,6 @@ export const useCalculatorTaxe = () => {
   return {
     calculate,
     calculateFromIncasariPlati,
+    thresholds: TAX_THRESHOLDS,
   };
 };

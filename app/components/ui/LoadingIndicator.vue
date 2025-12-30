@@ -2,7 +2,7 @@
   <Transition name="fade">
     <div
       v-if="isLoading"
-      class="fixed top-0 left-0 lg:left-64 right-0 bottom-0 flex items-center justify-center bg-white bg-opacity-90"
+      class="fixed top-0 left-0 lg:left-64 right-0 bottom-0 flex items-center justify-center bg-white bg-opacity-95"
       style="z-index: 9998"
     >
       <div class="text-center">
@@ -19,20 +19,19 @@
 
 <script setup lang="ts">
 const nuxtApp = useNuxtApp();
-const isLoading = ref(false);
+const pageLoadingStore = usePageLoadingStore();
+const isLoading = computed(() => pageLoadingStore.isLoading);
 
 nuxtApp.hook("page:start", () => {
-  isLoading.value = true;
+  pageLoadingStore.startLoading();
 });
 
-nuxtApp.hook("page:finish", () => {
-  setTimeout(() => {
-    isLoading.value = false;
-  }, 150);
-});
+nuxtApp.hook("page:finish", () => {});
 
 onMounted(() => {
-  isLoading.value = false;
+  if (!pageLoadingStore.isLoading) {
+    pageLoadingStore.stopLoading();
+  }
 });
 </script>
 

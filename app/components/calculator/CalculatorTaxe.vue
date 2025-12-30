@@ -70,6 +70,30 @@
       </div>
     </div>
 
+    <div class="bg-indigo-50 p-4 rounded-lg">
+      <p class="text-sm font-medium text-indigo-900 mb-2">
+        📊 Praguri fiscale {{ new Date().getFullYear() }}:
+      </p>
+      <div
+        class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-indigo-800"
+      >
+        <div>
+          <span class="font-medium">Salariu minim brut:</span>
+          <span class="ml-1">{{
+            formatCurrency(thresholds.SALARIU_MINIM_BRUT)
+          }}</span>
+        </div>
+        <div>
+          <span class="font-medium">Prag CAS:</span>
+          <span class="ml-1">{{ formatCurrency(thresholds.CAS_PRAG) }}</span>
+        </div>
+        <div>
+          <span class="font-medium">Prag CASS:</span>
+          <span class="ml-1">{{ formatCurrency(thresholds.CASS_PRAG) }}</span>
+        </div>
+      </div>
+    </div>
+
     <div v-if="result" class="space-y-4">
       <div class="border-t border-gray-200 pt-4">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Rezultate Calcul</h3>
@@ -100,25 +124,63 @@
 
           <div class="border-t border-gray-200 pt-2 space-y-2">
             <div
-              class="flex justify-between items-center p-3 bg-orange-50 rounded"
+              class="flex justify-between items-center p-3 rounded"
+              :class="result.casApplicabil ? 'bg-orange-50' : 'bg-gray-100'"
             >
-              <span class="text-sm font-medium text-orange-800"
-                >CAS (25%):</span
+              <div class="flex flex-col">
+                <span
+                  class="text-sm font-medium"
+                  :class="
+                    result.casApplicabil ? 'text-orange-800' : 'text-gray-600'
+                  "
+                >
+                  CAS (25%):
+                </span>
+                <span
+                  v-if="!result.casApplicabil"
+                  class="text-xs text-gray-500"
+                >
+                  Sub pragul de {{ formatCurrency(result.pragCas) }}
+                </span>
+              </div>
+              <span
+                class="text-sm font-bold"
+                :class="
+                  result.casApplicabil ? 'text-orange-900' : 'text-gray-600'
+                "
               >
-              <span class="text-sm font-bold text-orange-900">{{
-                formatCurrency(result.cas)
-              }}</span>
+                {{ formatCurrency(result.cas) }}
+              </span>
             </div>
 
             <div
-              class="flex justify-between items-center p-3 bg-purple-50 rounded"
+              class="flex justify-between items-center p-3 rounded"
+              :class="result.cassApplicabil ? 'bg-purple-50' : 'bg-gray-100'"
             >
-              <span class="text-sm font-medium text-purple-800"
-                >CASS (10%):</span
+              <div class="flex flex-col">
+                <span
+                  class="text-sm font-medium"
+                  :class="
+                    result.cassApplicabil ? 'text-purple-800' : 'text-gray-600'
+                  "
+                >
+                  CASS (10%):
+                </span>
+                <span
+                  v-if="!result.cassApplicabil"
+                  class="text-xs text-gray-500"
+                >
+                  Sub pragul de {{ formatCurrency(result.pragCass) }}
+                </span>
+              </div>
+              <span
+                class="text-sm font-bold"
+                :class="
+                  result.cassApplicabil ? 'text-purple-900' : 'text-gray-600'
+                "
               >
-              <span class="text-sm font-bold text-purple-900">{{
-                formatCurrency(result.cass)
-              }}</span>
+                {{ formatCurrency(result.cass) }}
+              </span>
             </div>
 
             <div
@@ -161,11 +223,34 @@
         <div class="text-sm text-yellow-800">
           <p class="font-medium mb-2">ℹ️ Informații importante:</p>
           <ul class="list-disc list-inside space-y-1">
-            <li>CAS: 25% din baza impozabilă (contribuție la pensie)</li>
-            <li>CASS: 10% din baza impozabilă (contribuție la sănătate)</li>
-            <li>Impozit pe venit: 10% din baza impozabilă</li>
-            <li>Aceste procente sunt valabile pentru PFA în sistem real</li>
-            <li>Consultați un contabil pentru cazuri specifice</li>
+            <li>
+              <strong>CAS (25%):</strong> Se plătește doar dacă venitul brut
+              anual depășește {{ formatCurrency(result.pragCas) }} (12 ×
+              salariul minim brut)
+            </li>
+            <li>
+              <strong>CASS (10%):</strong> Se plătește doar dacă venitul brut
+              anual depășește {{ formatCurrency(result.pragCass) }} (12 ×
+              salariul minim brut pentru PFA stabilit)
+            </li>
+            <li>
+              <strong>Impozit pe venit (10%):</strong> Se aplică întotdeauna pe
+              baza impozabilă (venit - cheltuieli)
+            </li>
+            <li>
+              Aceste procente și praguri sunt valabile pentru
+              {{ new Date().getFullYear() }}
+            </li>
+            <li>
+              Salariul minim brut:
+              {{ formatCurrency(result.salariuMinim) }}/lună
+            </li>
+            <li>
+              <strong
+                >Consultați un contabil pentru cazuri specifice și actualizări
+                legislative</strong
+              >
+            </li>
           </ul>
         </div>
       </div>
@@ -174,7 +259,9 @@
 </template>
 
 <script setup lang="ts">
-const { calculate, calculateFromIncasariPlati } = useCalculatorTaxe();
+const { calculate, calculateFromIncasariPlati, thresholds } =
+  useCalculatorTaxe();
+const { finishLoading } = usePageLoad();
 
 const selectedYear = ref(new Date().getFullYear());
 const manualInput = ref({
@@ -215,4 +302,8 @@ const formatCurrency = (amount: number) => {
     currency: "RON",
   }).format(amount);
 };
+
+onMounted(() => {
+  finishLoading();
+});
 </script>
