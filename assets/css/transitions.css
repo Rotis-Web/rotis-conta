@@ -73,6 +73,23 @@ button {
   color: inherit;
 }
 
+input[type="radio"],
+input[type="checkbox"] {
+  appearance: auto;
+  -webkit-appearance: auto;
+  accent-color: auto;
+}
+
+input[type="radio"]:focus,
+input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+input[type="file"] {
+  border: none;
+  padding: 0;
+}
 /* iOS/Android: remove native styling so Tailwind-like CSS applies */
 input,
 select,
@@ -158,18 +175,18 @@ input[type="number"]::-webkit-inner-spin-button {
   margin: 0;
 }
 input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 
 /* Native select arrow (since appearance none removes it) */
 select {
   background-image: linear-gradient(45deg, transparent 50%, #6b7280 50%),
-    linear-gradient(135deg, #6b7280 50%, transparent 50%),
-    linear-gradient(to right, transparent, transparent);
-  background-position: calc(100% - 18px) calc(50% - 3px),
-    calc(100% - 12px) calc(50% - 3px), calc(100% - 2.5rem) 0.5rem;
-  background-size: 6px 6px, 6px 6px, 1px 1.5rem;
+    linear-gradient(135deg, #6b7280 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+  background-size: 6px 6px;
   background-repeat: no-repeat;
+
   padding-right: 2.5rem; /* space for arrow */
 }
 
