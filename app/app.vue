@@ -198,3 +198,9 @@ onMounted(async () => {
   }
 });
 </script>
+
+<style>
+body {
+  font-family: "Rubik", sans-serif;
+}
+</style>

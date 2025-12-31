@@ -1,8 +1,33 @@
 import { resolve } from "path";
-
 export default defineNuxtConfig({
   compatibilityDate: "2025-12-28",
-  modules: ["@nuxtjs/tailwindcss", "@nuxt/image", "@pinia/nuxt"],
+  modules: [
+    "@nuxtjs/tailwindcss",
+    "@nuxt/image",
+    "@pinia/nuxt",
+    "@nuxtjs/google-fonts",
+  ],
+
+  googleFonts: {
+    families: {
+      Rubik: [300, 400, 500, 600, 700],
+    },
+    display: "swap",
+    preload: true,
+  },
+
+  tailwindcss: {
+    config: {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Rubik"],
+          },
+        },
+      },
+    },
+  },
+
   runtimeConfig: {
     mongodbUri: process.env.MONGODB_URI,
     jwtSecret: process.env.JWT_SECRET,
