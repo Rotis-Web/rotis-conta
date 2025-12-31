@@ -257,9 +257,104 @@ export const useExportCSV = () => {
     URL.revokeObjectURL(url);
   };
 
+  /**
+   * Exports Registru Inventar to CSV
+   */
+  const exportInventarCSV = (
+    entries: any[],
+    year: number,
+    totals: {
+      valoareContabila: number;
+      valoareCirculatie: number;
+      diferenteValoare: number;
+    }
+  ) => {
+    // PFA Header
+    const header = createPFAHeader("REGISTRU INVENTAR", year);
+
+    // Add inventory date info
+    const inventarDate =
+      entries.length > 0
+        ? format(new Date(entries[0].data), "dd.MM.yyyy", { locale: ro })
+        : format(new Date(), "dd.MM.yyyy", { locale: ro });
+
+    header.push(`"Data: ${inventarDate}"`);
+    header.push(`"Locația: ${authStore.user?.pfaData?.adresa || "N/A"}"`);
+    header.push("");
+
+    // Column headers
+    const columns = [
+      "Nr. Crt.",
+      "Data",
+      "Elementele Inventariate",
+      "Valoare Contabilă (RON)",
+      "Valoare de Circulație (RON)",
+      "Diferențe de Evaluare - Valoare (RON)",
+      "Diferențe de Evaluare - Cauze",
+    ];
+
+    // Data rows
+    const rows = entries.map((entry: any, index: number) => [
+      index + 1,
+      entry.data
+        ? format(new Date(entry.data), "dd.MM.yyyy", { locale: ro })
+        : "",
+      entry.elementeInventariate || "",
+      formatNumber(entry.valoareContabila || 0),
+      formatNumber(entry.valoareCirculatie || 0),
+      formatNumber(entry.diferenteEvaluare?.valoare || 0),
+      entry.diferenteEvaluare?.cauze || "",
+    ]);
+
+    // Totals row
+    const totalsRow = [
+      "",
+      "",
+      "TOTAL:",
+      formatNumber(totals.valoareContabila),
+      formatNumber(totals.valoareCirculatie),
+      formatNumber(totals.diferenteValoare),
+      "",
+    ];
+
+    // Summary information
+    const summaryRows = [
+      "",
+      "",
+      '"REZUMAT"',
+      `"Total Valoare Contabilă:",${escapeCSVCell(
+        formatCurrency(totals.valoareContabila)
+      )}`,
+      `"Total Valoare Circulație:",${escapeCSVCell(
+        formatCurrency(totals.valoareCirculatie)
+      )}`,
+      `"Diferență Totală:",${escapeCSVCell(
+        formatCurrency(totals.diferenteValoare)
+      )},"${totals.diferenteValoare >= 0 ? "Plus-valoare" : "Minus-valoare"}"`,
+      "",
+      "",
+      '"NOTĂ: Valorile sunt calculate la data inventarierii."',
+      '"Diferențele pozitive indică plus-valoare (valoarea de circulație > valoarea contabilă)."',
+      '"Diferențele negative indică minus-valoare (valoarea de circulație < valoarea contabilă)."',
+    ];
+
+    // Combine all parts
+    const csvContent = [
+      ...header,
+      columns.map(escapeCSVCell).join(","),
+      ...rows.map((row) => row.map(escapeCSVCell).join(",")),
+      "",
+      totalsRow.map(escapeCSVCell).join(","),
+      ...summaryRows,
+    ].join("\n");
+
+    downloadCSV(csvContent, `registru-inventar-${year}.csv`);
+  };
+
   return {
     exportIncasariPlatiCSV,
     exportIntrareIesireCSV,
     exportEvidentaFiscalaCSV,
+    exportInventarCSV,
   };
 };

@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import type {
   IncasarePlata,
   IntrareIesire,
+  RegistruInventar,
   TotalsMonthly,
   TotalsAnnual,
 } from "../types";
@@ -19,6 +20,16 @@ interface RegistreState {
   iiSelectedYear: number;
   iiInitialized: boolean;
 
+  // Registru Inventar
+  registruInventar: RegistruInventar[];
+  inventarTotals: {
+    valoareContabila: number;
+    valoareCirculatie: number;
+    diferenteValoare: number;
+  };
+  inventarSelectedYear: number;
+  inventarInitialized: boolean;
+
   loading: boolean;
 }
 
@@ -34,6 +45,15 @@ export const useRegistreStore = defineStore("registre", {
     iiSelectedYear: new Date().getFullYear(),
     iiInitialized: false,
 
+    registruInventar: [],
+    inventarTotals: {
+      valoareContabila: 0,
+      valoareCirculatie: 0,
+      diferenteValoare: 0,
+    },
+    inventarSelectedYear: new Date().getFullYear(),
+    inventarInitialized: false,
+
     loading: false,
   }),
 
@@ -43,6 +63,9 @@ export const useRegistreStore = defineStore("registre", {
     incasariPlatiByMonth: (state) => state.ipByMonth,
 
     currentYearIntrareIesire: (state) => state.intrareIesire,
+
+    currentYearInventar: (state) => state.registruInventar,
+    inventarTotalsGetter: (state) => state.inventarTotals,
   },
 
   actions: {
@@ -282,6 +305,148 @@ export const useRegistreStore = defineStore("registre", {
       this.iiSelectedYear = year;
       this.iiInitialized = false;
       return this.fetchIntrareIesire(year);
+    },
+
+    async fetchInventar(an?: number, force = false) {
+      const year = an || this.inventarSelectedYear;
+
+      if (
+        this.inventarInitialized &&
+        year === this.inventarSelectedYear &&
+        !force
+      ) {
+        return;
+      }
+
+      this.loading = true;
+      this.inventarSelectedYear = year;
+
+      try {
+        const data = await $fetch<{
+          entries: RegistruInventar[];
+          totals: {
+            valoareContabila: number;
+            valoareCirculatie: number;
+            diferenteValoare: number;
+          };
+        }>("/api/registre/inventar", {
+          params: { an: year },
+        });
+
+        this.registruInventar = data.entries.sort(
+          (a: RegistruInventar, b: RegistruInventar) => {
+            const dateA = new Date(a.data).getTime();
+            const dateB = new Date(b.data).getTime();
+
+            if (dateA !== dateB) {
+              return dateA - dateB;
+            }
+
+            return (a.nrCrt || 0) - (b.nrCrt || 0);
+          }
+        );
+
+        this.inventarTotals = data.totals;
+        this.inventarInitialized = true;
+      } catch (err) {
+        console.error("Error fetching inventar:", err);
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async addInventar(entryData: Partial<RegistruInventar>) {
+      const tempId = `temp-${Date.now()}`;
+      const tempEntry: RegistruInventar = {
+        ...entryData,
+        _id: tempId,
+        nrCrt: this.registruInventar.length + 1,
+        data: entryData.data || new Date().toISOString(),
+      } as RegistruInventar;
+
+      this.registruInventar.push(tempEntry);
+      this.recalculateInventarTotals();
+
+      try {
+        const data = await $fetch<{
+          success: boolean;
+          entry: RegistruInventar;
+        }>("/api/registre/inventar", {
+          method: "POST",
+          body: entryData,
+        });
+
+        const index = this.registruInventar.findIndex(
+          (e: { _id: string }) => e._id === tempId
+        );
+        if (index !== -1) {
+          this.registruInventar[index] = data.entry;
+        }
+
+        return data.entry;
+      } catch (err: any) {
+        const index = this.registruInventar.findIndex(
+          (e: { _id: string }) => e._id === tempId
+        );
+        if (index !== -1) {
+          this.registruInventar.splice(index, 1);
+        }
+        this.recalculateInventarTotals();
+        throw new Error(
+          err.data?.message || err.message || "Eroare la adăugare"
+        );
+      }
+    },
+
+    async deleteInventar(id: string) {
+      const index = this.registruInventar.findIndex(
+        (e: { _id: string }) => e._id === id
+      );
+      const deleted = index !== -1 ? this.registruInventar[index] : null;
+
+      if (index !== -1) {
+        this.registruInventar.splice(index, 1);
+        this.recalculateInventarTotals();
+      }
+
+      try {
+        await $fetch(`/api/registre/inventar/${id}`, {
+          method: "DELETE",
+        });
+      } catch (err: any) {
+        if (deleted) {
+          this.registruInventar.splice(index, 0, deleted);
+          this.recalculateInventarTotals();
+        }
+        throw new Error(
+          err.data?.message || err.message || "Eroare la ștergere"
+        );
+      }
+    },
+
+    changeInventarYear(year: number) {
+      this.inventarSelectedYear = year;
+      this.inventarInitialized = false;
+      return this.fetchInventar(year);
+    },
+
+    recalculateInventarTotals() {
+      const totals = this.registruInventar.reduce(
+        (acc: any, entry: any) => {
+          acc.valoareContabila += entry.valoareContabila || 0;
+          acc.valoareCirculatie += entry.valoareCirculatie || 0;
+          acc.diferenteValoare += entry.diferenteEvaluare?.valoare || 0;
+          return acc;
+        },
+        {
+          valoareContabila: 0,
+          valoareCirculatie: 0,
+          diferenteValoare: 0,
+        }
+      );
+
+      this.inventarTotals = totals;
     },
   },
 });

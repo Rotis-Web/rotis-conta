@@ -167,15 +167,15 @@
                   </div>
                   <div v-else class="text-gray-400">-</div>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-900">
+                <td class="px-6 py-4 text-sm text-gray-900 min-w-[200px]">
                   {{ item.emitent || "-" }}
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-900 max-w-xs">
+                <td class="px-6 py-4 text-sm text-gray-900 min-w-[200px]">
                   <div class="line-clamp-2" :title="item.continutPeScurt">
                     {{ item.continutPeScurt }}
                   </div>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
+                <td class="px-6 py-4 text-sm text-gray-500 min-w-[200px]">
                   {{ item.compartimentSiSemnatura || "-" }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -183,7 +183,7 @@
                     item.dataExpedierii ? formatDate(item.dataExpedierii) : "-"
                   }}
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500">
+                <td class="px-6 py-4 text-sm text-gray-500 min-w-[200px]">
                   {{ item.destinatar || "-" }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">

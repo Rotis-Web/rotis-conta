@@ -266,7 +266,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {{ item.document?.tip }} {{ item.document?.numar }}
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-900">
+                <td class="px-6 py-4 text-sm text-gray-900 min-w-[300px]">
                   {{ item.felulOperatiunii }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">

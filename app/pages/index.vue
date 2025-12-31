@@ -28,7 +28,7 @@
 
         <NuxtLink
           to="/login"
-          class="inline-block px-20 py-4 text-lg font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform"
+          class="inline-block px-20 py-4 text-lg font-semibold text-white bg-indigo-600 rounded-xl transition-all shadow-lg hover:-translate-y-0.5 transform"
         >
           Începe acum
         </NuxtLink>

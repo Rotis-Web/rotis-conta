@@ -50,6 +50,21 @@ export interface IntrareIesire {
   an: number;
 }
 
+export interface RegistruInventar {
+  _id: string;
+  nrCrt: number;
+  elementeInventariate: string;
+  valoareContabila: number;
+  valoareCirculatie: number;
+  diferenteEvaluare: {
+    valoare: number;
+    cauze: string;
+  };
+  data: string | Date;
+  an: number;
+  createdAt?: string | Date;
+}
+
 export interface Document {
   _id: string;
   tip:

@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div
+    <header
       class="lg:hidden border-b border-gray-200 fixed inset-x-0 top-0 z-30 bg-white"
     >
       <div class="flex items-center justify-between px-4 py-4">
@@ -34,7 +34,7 @@
 
         <div class="w-6"></div>
       </div>
-    </div>
+    </header>
 
     <transition
       enter-active-class="transition-opacity duration-300"
@@ -187,7 +187,14 @@
                   class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-800 hover:text-white"
                   active-class="bg-gray-800 text-white"
                 >
-                  Intrare-Ieșire
+                  Intrare-Ieșire </NuxtLink
+                ><NuxtLink
+                  to="/registre/inventar"
+                  @click="mobileMenuOpen = false"
+                  class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-800 hover:text-white"
+                  active-class="bg-gray-800 text-white"
+                >
+                  Inventar
                 </NuxtLink>
                 <NuxtLink
                   to="/registre/evidenta-fiscala"
@@ -298,7 +305,7 @@
       </div>
     </transition>
 
-    <div
+    <aside
       class="fixed inset-y-0 left-0 w-64 bg-gray-900 hidden lg:flex flex-col"
     >
       <div class="flex flex-col h-full">
@@ -405,6 +412,13 @@
                 Intrare-Ieșire
               </NuxtLink>
               <NuxtLink
+                to="/registre/inventar"
+                class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-800 hover:text-white"
+                active-class="bg-gray-800 text-white"
+              >
+                Inventar
+              </NuxtLink>
+              <NuxtLink
                 to="/registre/evidenta-fiscala"
                 class="flex items-center px-4 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-800 hover:text-white"
                 active-class="bg-gray-800 text-white"
@@ -502,7 +516,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </aside>
 
     <div class="pl-0 lg:pl-64 pt-12 lg:pt-0">
       <main class="py-10">
