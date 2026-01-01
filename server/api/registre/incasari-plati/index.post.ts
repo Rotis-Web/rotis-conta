@@ -1,23 +1,19 @@
 import { IncasarePlata } from "../../../models/IncasarePlata";
+import { validateBody, incasarePlataSchema } from "../../../utils/validation";
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user;
-  const body = await readBody(event);
 
-  if (
-    !body.data ||
-    !body.felulOperatiunii ||
-    !body.tip ||
-    !body.suma ||
-    !body.metodaPlata
-  ) {
+  if (!user) {
     throw createError({
-      statusCode: 400,
-      message: "Date incomplete",
+      statusCode: 401,
+      message: "Neautentificat",
     });
   }
 
-  const data = new Date(body.data);
+  const validatedData = await validateBody(event, incasarePlataSchema);
+
+  const data = new Date(validatedData.data);
   const an = data.getFullYear();
   const luna = data.getMonth() + 1;
 
@@ -34,11 +30,11 @@ export default defineEventHandler(async (event) => {
     userId: user._id,
     nrCrt,
     data,
-    document: body.document,
-    felulOperatiunii: body.felulOperatiunii,
-    tip: body.tip,
-    suma: body.suma,
-    metodaPlata: body.metodaPlata,
+    document: validatedData.document,
+    felulOperatiunii: validatedData.felulOperatiunii,
+    tip: validatedData.tip,
+    suma: validatedData.suma,
+    metodaPlata: validatedData.metodaPlata,
     an,
     luna,
   });

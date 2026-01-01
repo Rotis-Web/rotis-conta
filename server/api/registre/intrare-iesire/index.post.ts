@@ -1,17 +1,19 @@
 import { IntrareIesire } from "../../../models/IntrareIesire";
+import { validateBody, intrareIesireSchema } from "../../../utils/validation";
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user;
-  const body = await readBody(event);
 
-  if (!body.dataInregistrarii || !body.continutPeScurt) {
+  if (!user) {
     throw createError({
-      statusCode: 400,
-      message: "Date incomplete",
+      statusCode: 401,
+      message: "Neautentificat",
     });
   }
 
-  const dataInregistrarii = new Date(body.dataInregistrarii);
+  const validatedData = await validateBody(event, intrareIesireSchema);
+
+  const dataInregistrarii = new Date(validatedData.dataInregistrarii);
   const an = dataInregistrarii.getFullYear();
 
   const lastEntry = await IntrareIesire.findOne({
@@ -27,15 +29,15 @@ export default defineEventHandler(async (event) => {
     userId: user._id,
     nrInregistrare,
     dataInregistrarii,
-    nrSiDataDocument: body.nrSiDataDocument,
-    emitent: body.emitent,
-    continutPeScurt: body.continutPeScurt,
-    compartimentSiSemnatura: body.compartimentSiSemnatura,
-    dataExpedierii: body.dataExpedierii
-      ? new Date(body.dataExpedierii)
+    nrSiDataDocument: validatedData.nrSiDataDocument,
+    emitent: validatedData.emitent,
+    continutPeScurt: validatedData.continutPeScurt,
+    compartimentSiSemnatura: validatedData.compartimentSiSemnatura,
+    dataExpedierii: validatedData.dataExpedierii
+      ? new Date(validatedData.dataExpedierii)
       : undefined,
-    destinatar: body.destinatar,
-    nrInregistrareLaCare: body.nrInregistrareLaCare,
+    destinatar: validatedData.destinatar,
+    nrInregistrareLaCare: validatedData.nrInregistrareLaCare,
     an,
   });
 

@@ -1,8 +1,17 @@
 import { put } from "@vercel/blob";
 import { Document } from "../../models/Document";
+import { validateFileUpload } from "../../utils/validation";
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user;
+
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: "Neautentificat",
+    });
+  }
+
   const formData = await readMultipartFormData(event);
 
   if (!formData) {
@@ -12,38 +21,29 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const fileData = formData.find((item) => item.name === "file");
-  const tip = formData.find((item) => item.name === "tip")?.data.toString();
-  const titlu = formData.find((item) => item.name === "titlu")?.data.toString();
-  const descriere = formData
-    .find((item) => item.name === "descriere")
-    ?.data.toString();
-  const data = formData.find((item) => item.name === "data")?.data.toString();
-
-  if (!fileData || !tip || !titlu) {
-    throw createError({
-      statusCode: 400,
-      message: "Date incomplete",
-    });
-  }
+  const validatedData = validateFileUpload(formData);
 
   try {
-    const blob = await put(fileData.filename!, fileData.data, {
-      access: "public",
-      addRandomSuffix: true,
-    });
+    const blob = await put(
+      validatedData.file.filename,
+      validatedData.file.data,
+      {
+        access: "public",
+        addRandomSuffix: true,
+      }
+    );
 
     const document = await Document.create({
       userId: user._id,
-      tip,
-      titlu,
-      descriere: descriere || "",
-      data: data ? new Date(data) : new Date(),
+      tip: validatedData.tip,
+      titlu: validatedData.titlu,
+      descriere: validatedData.descriere,
+      data: validatedData.data,
       fisier: {
         url: blob.url,
         key: blob.pathname,
-        nume: fileData.filename,
-        marime: fileData.data.length,
+        nume: validatedData.file.filename,
+        marime: validatedData.file.data.length,
       },
     });
 

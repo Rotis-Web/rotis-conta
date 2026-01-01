@@ -1,15 +1,12 @@
 import { User } from "../../models/User";
 import { generateToken } from "../../utils/jwt";
+import { validateBody, registerSchema } from "../../utils/validation";
 
 export default defineEventHandler(async (event) => {
-  const { email, password, nume, pfaData } = await readBody(event);
-
-  if (!email || !password || !nume) {
-    throw createError({
-      statusCode: 400,
-      message: "Email, parolă și nume sunt obligatorii",
-    });
-  }
+  const { email, password, nume, pfaData } = await validateBody(
+    event,
+    registerSchema
+  );
 
   const userCount = await User.countDocuments();
   if (userCount > 0) {
@@ -42,6 +39,7 @@ export default defineEventHandler(async (event) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7,
+    path: "/",
   });
 
   return {

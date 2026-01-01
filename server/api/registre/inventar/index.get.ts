@@ -1,14 +1,21 @@
 import { RegistruInventar } from "../../../models/RegistruInventar";
+import { validateQuery, yearQuerySchema } from "../../../utils/validation";
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user;
-  const query = getQuery(event);
 
-  const an = query.an ? parseInt(query.an as string) : new Date().getFullYear();
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: "Neautentificat",
+    });
+  }
+
+  const { an } = validateQuery(event, yearQuerySchema);
 
   const entries = await RegistruInventar.find({
     userId: user._id,
-    an,
+    an: an || new Date().getFullYear(),
   })
     .sort({ data: 1, nrCrt: 1 })
     .lean();
@@ -30,6 +37,6 @@ export default defineEventHandler(async (event) => {
   return {
     entries,
     totals,
-    an,
+    an: an || new Date().getFullYear(),
   };
 });

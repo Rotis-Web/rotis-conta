@@ -1,15 +1,9 @@
 import { User } from "../../models/User";
 import { generateToken } from "../../utils/jwt";
+import { validateBody, loginSchema } from "../../utils/validation";
 
 export default defineEventHandler(async (event) => {
-  const { email, password } = await readBody(event);
-
-  if (!email || !password) {
-    throw createError({
-      statusCode: 400,
-      message: "Email și parolă sunt obligatorii",
-    });
-  }
+  const { email, password } = await validateBody(event, loginSchema);
 
   const user = await User.findOne({ email });
   if (!user) {
@@ -34,6 +28,7 @@ export default defineEventHandler(async (event) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7,
+    path: "/",
   });
 
   return {

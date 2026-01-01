@@ -1,5 +1,4 @@
 import { User } from "../../models/User";
-import { Factura } from "../../models/Factura";
 import { IntrareIesire } from "../../models/IntrareIesire";
 import { IncasarePlata } from "../../models/IncasarePlata";
 import { Document } from "../../models/Document";
@@ -14,7 +13,6 @@ export default defineEventHandler(async (event) => {
   const userId = user._id;
 
   await Promise.all([
-    Factura.deleteMany({ userId }),
     IntrareIesire.deleteMany({ userId }),
     IncasarePlata.deleteMany({ userId }),
     Document.deleteMany({ userId }),

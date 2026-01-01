@@ -1,4 +1,5 @@
 import { User } from "../../models/User";
+import { validateBody, updateUserSchema } from "../../utils/validation";
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user;
@@ -10,14 +11,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { nume, email } = await readBody(event);
-
-  if (!nume || !email) {
-    throw createError({
-      statusCode: 400,
-      message: "Nume și email sunt obligatorii",
-    });
-  }
+  const { nume, email } = await validateBody(event, updateUserSchema);
 
   if (email !== user.email) {
     const existingUser = await User.findOne({
@@ -36,7 +30,7 @@ export default defineEventHandler(async (event) => {
   const updatedUser = await User.findByIdAndUpdate(
     user._id,
     { nume, email },
-    { new: true }
+    { new: true, runValidators: true }
   ).select("-password");
 
   if (!updatedUser) {

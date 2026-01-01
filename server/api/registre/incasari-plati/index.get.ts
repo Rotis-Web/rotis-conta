@@ -1,13 +1,23 @@
 import { IncasarePlata } from "../../../models/IncasarePlata";
+import { validateQuery, yearQuerySchema } from "../../../utils/validation";
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user;
-  const query = getQuery(event);
 
-  const an = query.an ? parseInt(query.an as string) : new Date().getFullYear();
-  const luna = query.luna ? parseInt(query.luna as string) : undefined;
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: "Neautentificat",
+    });
+  }
 
-  const dbQuery: any = { userId: user._id, an };
+  const { an, luna } = validateQuery(event, yearQuerySchema);
+
+  const dbQuery: any = {
+    userId: user._id,
+    an: an || new Date().getFullYear(),
+  };
+
   if (luna) {
     dbQuery.luna = luna;
   }
@@ -56,6 +66,6 @@ export default defineEventHandler(async (event) => {
     entries,
     totals,
     byMonth: Object.values(byMonth),
-    an,
+    an: dbQuery.an,
   };
 });

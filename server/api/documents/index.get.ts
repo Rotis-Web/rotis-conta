@@ -1,13 +1,22 @@
 import { Document } from "../../models/Document";
+import { validateQuery, documentQuerySchema } from "../../utils/validation";
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user;
-  const query = getQuery(event);
+
+  if (!user) {
+    throw createError({
+      statusCode: 401,
+      message: "Neautentificat",
+    });
+  }
+
+  const { tip } = validateQuery(event, documentQuerySchema);
 
   const filter: any = { userId: user._id };
 
-  if (query.tip) {
-    filter.tip = query.tip;
+  if (tip) {
+    filter.tip = tip;
   }
 
   const documents = await Document.find(filter)

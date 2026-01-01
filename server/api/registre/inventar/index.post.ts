@@ -1,17 +1,22 @@
 import { RegistruInventar } from "../../../models/RegistruInventar";
+import {
+  validateBody,
+  registruInventarSchema,
+} from "../../../utils/validation";
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user;
-  const body = await readBody(event);
 
-  if (!body.elementeInventariate || !body.data) {
+  if (!user) {
     throw createError({
-      statusCode: 400,
-      message: "Date incomplete",
+      statusCode: 401,
+      message: "Neautentificat",
     });
   }
 
-  const data = new Date(body.data);
+  const validatedData = await validateBody(event, registruInventarSchema);
+
+  const data = new Date(validatedData.data);
   const an = data.getFullYear();
 
   const lastEntry = await RegistruInventar.findOne({
@@ -23,19 +28,19 @@ export default defineEventHandler(async (event) => {
 
   const nrCrt = lastEntry ? lastEntry.nrCrt + 1 : 1;
 
-  const valoareContabila = body.valoareContabila || 0;
-  const valoareCirculatie = body.valoareCirculatie || 0;
+  const valoareContabila = validatedData.valoareContabila || 0;
+  const valoareCirculatie = validatedData.valoareCirculatie || 0;
   const diferentaValoare = valoareCirculatie - valoareContabila;
 
   const entry = await RegistruInventar.create({
     userId: user._id,
     nrCrt,
-    elementeInventariate: body.elementeInventariate,
+    elementeInventariate: validatedData.elementeInventariate,
     valoareContabila,
     valoareCirculatie,
     diferenteEvaluare: {
       valoare: diferentaValoare,
-      cauze: body.diferenteEvaluare?.cauze || "",
+      cauze: validatedData.diferenteEvaluare?.cauze || "",
     },
     data,
     an,

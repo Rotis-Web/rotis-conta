@@ -1,4 +1,5 @@
 import { User } from "../../models/User";
+import { validateBody, changePasswordSchema } from "../../utils/validation";
 
 export default defineEventHandler(async (event) => {
   const user = event.context.user;
@@ -10,21 +11,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { currentPassword, newPassword } = await readBody(event);
-
-  if (!currentPassword || !newPassword) {
-    throw createError({
-      statusCode: 400,
-      message: "Parola curentă și parola nouă sunt obligatorii",
-    });
-  }
-
-  if (newPassword.length < 6) {
-    throw createError({
-      statusCode: 400,
-      message: "Parola nouă trebuie să aibă cel puțin 6 caractere",
-    });
-  }
+  const { currentPassword, newPassword } = await validateBody(
+    event,
+    changePasswordSchema
+  );
 
   const userWithPassword = await User.findById(user._id);
 
