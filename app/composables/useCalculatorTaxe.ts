@@ -6,13 +6,10 @@ const MIN_WAGE_BY_YEAR: Record<number, number> = {
 export type TaxThresholds = {
   year: number;
   SALARIU_MINIM_BRUT: number;
-
   CAS_PRAG_12: number;
   CAS_PRAG_24: number;
-
   CASS_MIN_BASE: number;
   CASS_MAX_BASE: number;
-
   CAS_RATE: number;
   CASS_RATE: number;
   IMPOZIT_RATE: number;
@@ -22,26 +19,20 @@ export type TaxResult = {
   venit: number;
   cheltuieli: number;
   baza: number;
-
   cas: number;
   cass: number;
   impozit: number;
   total: number;
   net: number;
-
   casApplicabil: boolean;
   cassApplicabil: boolean;
-
   salariuMinim: number;
   pragCas12: number;
   pragCas24: number;
-
   cassMinBase: number;
   cassMaxBase: number;
-
   casBase: number;
   cassBase: number;
-
   year: number;
 };
 
@@ -52,13 +43,10 @@ const getThresholds = (year: number): TaxThresholds => {
   return {
     year,
     SALARIU_MINIM_BRUT,
-
     CAS_PRAG_12: SALARIU_MINIM_BRUT * 12,
     CAS_PRAG_24: SALARIU_MINIM_BRUT * 24,
-
     CASS_MIN_BASE: SALARIU_MINIM_BRUT * 6,
     CASS_MAX_BASE: SALARIU_MINIM_BRUT * 60,
-
     CAS_RATE: 0.25,
     CASS_RATE: 0.1,
     IMPOZIT_RATE: 0.1,
@@ -66,6 +54,9 @@ const getThresholds = (year: number): TaxThresholds => {
 };
 
 export const useCalculatorTaxe = () => {
+  const { success, error: showError } = useToast();
+  const calculating = ref(false);
+
   const thresholdsFor = (year: number) => getThresholds(year);
 
   const calculate = (
@@ -105,45 +96,48 @@ export const useCalculatorTaxe = () => {
       venit,
       cheltuieli,
       baza,
-
       cas,
       cass,
       impozit,
       total,
       net,
-
       casApplicabil,
       cassApplicabil,
-
       salariuMinim: t.SALARIU_MINIM_BRUT,
       pragCas12: t.CAS_PRAG_12,
       pragCas24: t.CAS_PRAG_24,
-
       cassMinBase: t.CASS_MIN_BASE,
       cassMaxBase: t.CASS_MAX_BASE,
-
       casBase,
       cassBase,
-
       year: t.year,
     };
   };
 
   const calculateFromIncasariPlati = async (year: number) => {
+    calculating.value = true;
     try {
       const { data } = await useFetch("/api/registre/incasari-plati", {
         params: { an: year },
       });
 
-      if (!data.value) return null;
+      if (!data.value) {
+        showError("Nu s-au găsit date pentru anul selectat");
+        return null;
+      }
 
       const venit = (data.value as any).totals.incasari;
       const cheltuieli = (data.value as any).totals.plati;
 
-      return calculate(venit, cheltuieli, year);
-    } catch (error) {
-      console.error("Error calculating from registru:", error);
+      const result = calculate(venit, cheltuieli, year);
+      success("Calculul a fost realizat cu succes!");
+      return result;
+    } catch (err) {
+      console.error("Error calculating from registru:", err);
+      showError("Eroare la calcularea impozitelor");
       return null;
+    } finally {
+      calculating.value = false;
     }
   };
 
@@ -151,5 +145,6 @@ export const useCalculatorTaxe = () => {
     calculate,
     calculateFromIncasariPlati,
     thresholdsFor,
+    calculating,
   };
 };

@@ -1,12 +1,8 @@
 import type { PFAData } from "../../types";
 
-interface Message {
-  type: "success" | "error";
-  text: string;
-}
-
 export const useSettings = () => {
   const authStore = useAuthStore();
+  const { error: showError } = useToast();
 
   const activeTab = ref<"pfa" | "account">("pfa");
 
@@ -34,13 +30,8 @@ export const useSettings = () => {
   });
 
   const pfaLoading = ref(false);
-  const pfaMessage = ref<Message | null>(null);
-
   const accountLoading = ref(false);
-  const accountMessage = ref<Message | null>(null);
-
   const passwordLoading = ref(false);
-  const passwordMessage = ref<Message | null>(null);
 
   const initializeForms = () => {
     if (authStore.user) {
@@ -67,19 +58,10 @@ export const useSettings = () => {
 
   const handlePFASubmit = async () => {
     pfaLoading.value = true;
-    pfaMessage.value = null;
 
     try {
       await authStore.updatePFAData(pfaForm.value);
-      pfaMessage.value = {
-        type: "success",
-        text: "Datele PFA au fost actualizate cu succes!",
-      };
     } catch (error: any) {
-      pfaMessage.value = {
-        type: "error",
-        text: error.message || "A apărut o eroare la salvarea datelor PFA",
-      };
     } finally {
       pfaLoading.value = false;
     }
@@ -87,43 +69,26 @@ export const useSettings = () => {
 
   const handleAccountSubmit = async () => {
     accountLoading.value = true;
-    accountMessage.value = null;
 
     try {
       await authStore.updateProfile({
         nume: accountForm.value.nume,
         email: accountForm.value.email,
       });
-      accountMessage.value = {
-        type: "success",
-        text: "Datele contului au fost actualizate cu succes!",
-      };
     } catch (error: any) {
-      accountMessage.value = {
-        type: "error",
-        text: error.message || "A apărut o eroare la salvarea datelor",
-      };
     } finally {
       accountLoading.value = false;
     }
   };
 
   const handlePasswordSubmit = async () => {
-    passwordMessage.value = null;
-
     if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-      passwordMessage.value = {
-        type: "error",
-        text: "Parolele nu coincid!",
-      };
+      showError("Parolele nu coincid!");
       return;
     }
 
     if (passwordForm.value.newPassword.length < 6) {
-      passwordMessage.value = {
-        type: "error",
-        text: "Parola trebuie să aibă cel puțin 6 caractere!",
-      };
+      showError("Parola trebuie să aibă cel puțin 6 caractere!");
       return;
     }
 
@@ -135,21 +100,12 @@ export const useSettings = () => {
         newPassword: passwordForm.value.newPassword,
       });
 
-      passwordMessage.value = {
-        type: "success",
-        text: "Parola a fost schimbată cu succes!",
-      };
-
       passwordForm.value = {
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       };
     } catch (error: any) {
-      passwordMessage.value = {
-        type: "error",
-        text: error.message || "A apărut o eroare la schimbarea parolei",
-      };
     } finally {
       passwordLoading.value = false;
     }
@@ -157,10 +113,8 @@ export const useSettings = () => {
 
   const deleteConfirmText = ref("");
   const deleteLoading = ref(false);
-  const deleteError = ref("");
 
   const handleDeleteAccount = async () => {
-    deleteError.value = "";
     if (deleteConfirmText.value !== "STERGE") return;
 
     if (!confirm("Sigur vrei să ștergi contul? Acțiunea este permanentă."))
@@ -171,8 +125,6 @@ export const useSettings = () => {
       await authStore.deleteAccount();
       await navigateTo("/login");
     } catch (e: any) {
-      deleteError.value =
-        e?.message || "A apărut o eroare la ștergerea contului.";
     } finally {
       deleteLoading.value = false;
       deleteConfirmText.value = "";
@@ -185,14 +137,10 @@ export const useSettings = () => {
     accountForm,
     passwordForm,
     pfaLoading,
-    pfaMessage,
     accountLoading,
-    accountMessage,
     passwordLoading,
-    passwordMessage,
     deleteConfirmText,
     deleteLoading,
-    deleteError,
 
     initializeForms,
     handlePFASubmit,

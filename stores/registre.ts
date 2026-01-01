@@ -8,19 +8,16 @@ import type {
 } from "../types";
 
 interface RegistreState {
-  // Incasari-Plati
   incasariPlati: IncasarePlata[];
   ipTotals: TotalsAnnual;
   ipByMonth: TotalsMonthly[];
   ipSelectedYear: number;
   ipInitialized: boolean;
 
-  // Intrare-Iesire
   intrareIesire: IntrareIesire[];
   iiSelectedYear: number;
   iiInitialized: boolean;
 
-  // Registru Inventar
   registruInventar: RegistruInventar[];
   inventarTotals: {
     valoareContabila: number;
@@ -114,6 +111,7 @@ export const useRegistreStore = defineStore("registre", {
     },
 
     async addIncasarePlata(entryData: Partial<IncasarePlata>) {
+      const { success, error: showError } = useToast();
       const tempId = `temp-${Date.now()}`;
       const tempEntry: IncasarePlata = {
         ...entryData,
@@ -139,6 +137,7 @@ export const useRegistreStore = defineStore("registre", {
           this.incasariPlati[index] = data.entry;
         }
 
+        success("Înregistrare adăugată cu succes!");
         return data.entry;
       } catch (err: any) {
         const index = this.incasariPlati.findIndex((e) => e._id === tempId);
@@ -146,13 +145,15 @@ export const useRegistreStore = defineStore("registre", {
           this.incasariPlati.splice(index, 1);
         }
         this.recalculateTotals();
-        throw new Error(
-          err.data?.message || err.message || "Eroare la adăugare"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la adăugare";
+        showError(message);
+        throw new Error(message);
       }
     },
 
     async deleteIncasarePlata(id: string) {
+      const { success, error: showError } = useToast();
       const index = this.incasariPlati.findIndex((e) => e._id === id);
       const deleted = index !== -1 ? this.incasariPlati[index] : null;
 
@@ -165,14 +166,16 @@ export const useRegistreStore = defineStore("registre", {
         await $fetch(`/api/registre/incasari-plati/${id}`, {
           method: "DELETE",
         });
+        success("Înregistrare ștearsă cu succes!");
       } catch (err: any) {
         if (deleted) {
           this.incasariPlati.splice(index, 0, deleted);
           this.recalculateTotals();
         }
-        throw new Error(
-          err.data?.message || err.message || "Eroare la ștergere"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la ștergere";
+        showError(message);
+        throw new Error(message);
       }
     },
 
@@ -241,7 +244,7 @@ export const useRegistreStore = defineStore("registre", {
     },
 
     async addIntrareIesire(entryData: Partial<IntrareIesire>) {
-      // Optimistic update
+      const { success, error: showError } = useToast();
       const tempId = `temp-${Date.now()}`;
       const tempEntry: IntrareIesire = {
         ...entryData,
@@ -266,20 +269,22 @@ export const useRegistreStore = defineStore("registre", {
           this.intrareIesire[index] = data.entry;
         }
 
+        success("Înregistrare adăugată cu succes!");
         return data.entry;
       } catch (err: any) {
-        // Revert on error
         const index = this.intrareIesire.findIndex((e) => e._id === tempId);
         if (index !== -1) {
           this.intrareIesire.splice(index, 1);
         }
-        throw new Error(
-          err.data?.message || err.message || "Eroare la adăugare"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la adăugare";
+        showError(message);
+        throw new Error(message);
       }
     },
 
     async deleteIntrareIesire(id: string) {
+      const { success, error: showError } = useToast();
       const index = this.intrareIesire.findIndex((e) => e._id === id);
       const deleted = index !== -1 ? this.intrareIesire[index] : null;
 
@@ -291,13 +296,15 @@ export const useRegistreStore = defineStore("registre", {
         await $fetch(`/api/registre/intrare-iesire/${id}`, {
           method: "DELETE",
         });
+        success("Înregistrare ștearsă cu succes!");
       } catch (err: any) {
         if (deleted) {
           this.intrareIesire.splice(index, 0, deleted);
         }
-        throw new Error(
-          err.data?.message || err.message || "Eroare la ștergere"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la ștergere";
+        showError(message);
+        throw new Error(message);
       }
     },
 
@@ -357,6 +364,7 @@ export const useRegistreStore = defineStore("registre", {
     },
 
     async addInventar(entryData: Partial<RegistruInventar>) {
+      const { success, error: showError } = useToast();
       const tempId = `temp-${Date.now()}`;
       const tempEntry: RegistruInventar = {
         ...entryData,
@@ -384,6 +392,7 @@ export const useRegistreStore = defineStore("registre", {
           this.registruInventar[index] = data.entry;
         }
 
+        success("Element inventar adăugat cu succes!");
         return data.entry;
       } catch (err: any) {
         const index = this.registruInventar.findIndex(
@@ -393,13 +402,15 @@ export const useRegistreStore = defineStore("registre", {
           this.registruInventar.splice(index, 1);
         }
         this.recalculateInventarTotals();
-        throw new Error(
-          err.data?.message || err.message || "Eroare la adăugare"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la adăugare";
+        showError(message);
+        throw new Error(message);
       }
     },
 
     async deleteInventar(id: string) {
+      const { success, error: showError } = useToast();
       const index = this.registruInventar.findIndex(
         (e: { _id: string }) => e._id === id
       );
@@ -414,14 +425,16 @@ export const useRegistreStore = defineStore("registre", {
         await $fetch(`/api/registre/inventar/${id}`, {
           method: "DELETE",
         });
+        success("Element inventar șters cu succes!");
       } catch (err: any) {
         if (deleted) {
           this.registruInventar.splice(index, 0, deleted);
           this.recalculateInventarTotals();
         }
-        throw new Error(
-          err.data?.message || err.message || "Eroare la ștergere"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la ștergere";
+        showError(message);
+        throw new Error(message);
       }
     },
 

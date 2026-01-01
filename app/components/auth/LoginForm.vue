@@ -38,17 +38,13 @@
           </div>
         </div>
 
-        <div v-if="error" class="rounded-md bg-red-50 p-4">
-          <div class="text-sm text-red-800">{{ error }}</div>
-        </div>
-
         <div>
           <button
             type="submit"
             name="login"
             id="login"
             :disabled="loading"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span v-if="loading">Se încarcă...</span>
             <span v-else>Autentificare</span>
@@ -78,17 +74,14 @@ const form = ref({
 });
 
 const loading = ref(false);
-const error = ref("");
 
 const handleLogin = async () => {
   loading.value = true;
-  error.value = "";
 
   try {
     await login(form.value.email, form.value.password);
     router.push("/dashboard");
   } catch (err: any) {
-    error.value = err.message;
   } finally {
     loading.value = false;
   }

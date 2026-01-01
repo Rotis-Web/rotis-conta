@@ -62,10 +62,6 @@
           </div>
         </div>
 
-        <div v-if="error" class="rounded-md bg-red-50 p-4">
-          <div class="text-sm text-red-800">{{ error }}</div>
-        </div>
-
         <div class="bg-white p-6 rounded-lg shadow space-y-4">
           <h3 class="text-lg font-medium text-gray-900">Date PFA (opțional)</h3>
 
@@ -137,9 +133,8 @@
             type="submit"
             name="register"
             id="register"
-            :loading="loading"
             :disabled="loading"
-            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span v-if="loading">Se înregistrează...</span>
             <span v-else>Înregistrare</span>
@@ -176,17 +171,14 @@ const form = ref({
 });
 
 const loading = ref(false);
-const error = ref("");
 
 const handleRegister = async () => {
   loading.value = true;
-  error.value = "";
 
   try {
     await register(form.value);
     router.push("/dashboard");
   } catch (err: any) {
-    error.value = err.message;
   } finally {
     loading.value = false;
   }

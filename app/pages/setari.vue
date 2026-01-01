@@ -196,18 +196,6 @@
               </div>
             </div>
 
-            <div
-              v-if="pfaMessage"
-              :class="[
-                'p-4 rounded-md',
-                pfaMessage.type === 'success'
-                  ? 'bg-green-50 text-green-800'
-                  : 'bg-red-50 text-red-800',
-              ]"
-            >
-              {{ pfaMessage.text }}
-            </div>
-
             <div class="flex justify-end">
               <button
                 type="submit"
@@ -262,18 +250,6 @@
                   autocomplete="email"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
-              </div>
-
-              <div
-                v-if="accountMessage"
-                :class="[
-                  'p-4 rounded-md',
-                  accountMessage.type === 'success'
-                    ? 'bg-green-50 text-green-800'
-                    : 'bg-red-50 text-red-800',
-                ]"
-              >
-                {{ accountMessage.text }}
               </div>
 
               <div class="flex justify-end">
@@ -349,18 +325,6 @@
                 />
               </div>
 
-              <div
-                v-if="passwordMessage"
-                :class="[
-                  'p-4 rounded-md',
-                  passwordMessage.type === 'success'
-                    ? 'bg-green-50 text-green-800'
-                    : 'bg-red-50 text-red-800',
-                ]"
-              >
-                {{ passwordMessage.text }}
-              </div>
-
               <div class="flex justify-end">
                 <button
                   type="submit"
@@ -413,10 +377,6 @@
                   {{ deleteLoading ? "Se șterge..." : "Șterge contul" }}
                 </button>
               </div>
-
-              <div v-if="deleteError" class="mt-3 text-sm text-red-700">
-                {{ deleteError }}
-              </div>
             </div>
           </div>
         </div>
@@ -438,19 +398,14 @@ const {
   accountForm,
   passwordForm,
   pfaLoading,
-  pfaMessage,
   accountLoading,
-  accountMessage,
   passwordLoading,
-  passwordMessage,
   deleteConfirmText,
   deleteLoading,
-  deleteError,
   initializeForms,
   handlePFASubmit,
   handleAccountSubmit,
   handlePasswordSubmit,
-
   handleDeleteAccount,
 } = useSettings();
 

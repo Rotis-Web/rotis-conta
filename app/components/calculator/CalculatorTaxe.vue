@@ -14,7 +14,6 @@
             v-model="selectedYear"
             :options="years.map((y) => ({ label: y.toString(), value: y }))"
             class="w-25"
-            @update:modelValue="calculateFromRegistru"
           />
           <button
             type="button"
@@ -22,9 +21,11 @@
             name="calculate"
             aria-label="Calculate"
             @click="calculateFromRegistru"
-            class="px-4 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
+            :disabled="calculating"
+            class="px-4 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Calculează
+            <span v-if="calculating">Se calculează...</span>
+            <span v-else>Calculează</span>
           </button>
         </div>
       </div>
@@ -68,45 +69,6 @@
         </div>
       </div>
     </div>
-
-    <!-- <div class="bg-indigo-50 p-4 rounded-lg">
-      <p class="text-sm font-medium text-indigo-900 mb-2">
-        📊 Praguri fiscale {{ selectedYear }}:
-      </p>
-
-      <div
-        class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-indigo-800"
-      >
-        <div>
-          <span class="font-medium">Salariu minim brut:</span>
-          <span class="ml-1">{{
-            formatCurrency(thresholds.SALARIU_MINIM_BRUT)
-          }}</span>
-        </div>
-
-        <div>
-          <span class="font-medium">Prag CAS:</span>
-          <span class="ml-1">{{ formatCurrency(thresholds.CAS_PRAG_12) }}</span>
-          <span class="ml-1 text-xs text-indigo-700">(12×)</span>
-        </div>
-
-        <div>
-          <span class="font-medium">Prag CAS superior:</span>
-          <span class="ml-1">{{ formatCurrency(thresholds.CAS_PRAG_24) }}</span>
-          <span class="ml-1 text-xs text-indigo-700">(24×)</span>
-        </div>
-
-        <div>
-          <span class="font-medium">Bază CASS (min / max):</span>
-          <span class="ml-1">{{
-            formatCurrency(thresholds.CASS_MIN_BASE)
-          }}</span>
-          <span class="mx-1">/</span>
-          <span>{{ formatCurrency(thresholds.CASS_MAX_BASE) }}</span>
-          <span class="ml-1 text-xs text-indigo-700">(6× / 60×)</span>
-        </div>
-      </div>
-    </div> -->
 
     <div v-if="result" class="space-y-4">
       <div class="border-t border-gray-200 pt-4">
@@ -293,7 +255,7 @@
 <script setup lang="ts">
 definePageMeta({ middleware: "auth" });
 
-const { calculate, calculateFromIncasariPlati, thresholdsFor } =
+const { calculate, calculateFromIncasariPlati, thresholdsFor, calculating } =
   useCalculatorTaxe();
 const { finishLoading } = usePageLoad();
 

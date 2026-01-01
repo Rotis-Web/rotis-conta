@@ -15,6 +15,7 @@ export const useAuthStore = defineStore("auth", {
 
   actions: {
     async login(email: string, password: string) {
+      const { success, error: showError } = useToast();
       this.loading = true;
       try {
         const data = await $fetch<{ user: User; token: string }>(
@@ -26,11 +27,13 @@ export const useAuthStore = defineStore("auth", {
         );
         this.user = data.user;
         this.initialized = true;
+        success("Autentificare reușită!");
         return data;
       } catch (err: any) {
-        throw new Error(
-          err.data?.message || err.message || "Eroare la autentificare"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la autentificare";
+        showError(message);
+        throw new Error(message);
       } finally {
         this.loading = false;
       }
@@ -42,6 +45,7 @@ export const useAuthStore = defineStore("auth", {
       nume: string;
       pfaData?: any;
     }) {
+      const { success, error: showError } = useToast();
       this.loading = true;
       try {
         const data = await $fetch<{ user: User; token: string }>(
@@ -53,19 +57,23 @@ export const useAuthStore = defineStore("auth", {
         );
         this.user = data.user;
         this.initialized = true;
+        success("Cont creat cu succes!");
         return data;
       } catch (err: any) {
-        throw new Error(
-          err.data?.message || err.message || "Eroare la înregistrare"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la înregistrare";
+        showError(message);
+        throw new Error(message);
       } finally {
         this.loading = false;
       }
     },
 
     async logout() {
+      const { info } = useToast();
       try {
         await $fetch("/api/auth/logout", { method: "POST" });
+        info("Te-ai deconectat cu succes");
       } catch (err) {
         console.error("Logout error:", err);
       } finally {
@@ -112,6 +120,7 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async updatePFAData(pfaData: any) {
+      const { success, error: showError } = useToast();
       try {
         const data = await $fetch<{ pfaData: any }>("/api/auth/update-pfa", {
           method: "PUT",
@@ -120,26 +129,31 @@ export const useAuthStore = defineStore("auth", {
         if (this.user) {
           this.user.pfaData = data.pfaData;
         }
+        success("Date PFA actualizate cu succes!");
         return data;
       } catch (err: any) {
-        throw new Error(
-          err.data?.message || err.message || "Eroare la actualizare date PFA"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la actualizare date PFA";
+        showError(message);
+        throw new Error(message);
       }
     },
 
     async updateProfile(profileData: { nume: string; email: string }) {
+      const { success, error: showError } = useToast();
       try {
         const data = await $fetch<{ user: User }>("/api/auth/update-profile", {
           method: "PUT",
           body: profileData,
         });
         this.user = data.user;
+        success("Profil actualizat cu succes!");
         return data;
       } catch (err: any) {
-        throw new Error(
-          err.data?.message || err.message || "Eroare la actualizare profil"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la actualizare profil";
+        showError(message);
+        throw new Error(message);
       }
     },
 
@@ -147,6 +161,7 @@ export const useAuthStore = defineStore("auth", {
       currentPassword: string;
       newPassword: string;
     }) {
+      const { success, error: showError } = useToast();
       try {
         const data = await $fetch<{ success: boolean; message: string }>(
           "/api/auth/update-password",
@@ -155,15 +170,18 @@ export const useAuthStore = defineStore("auth", {
             body: passwordData,
           }
         );
+        success("Parola a fost schimbată cu succes!");
         return data;
       } catch (err: any) {
-        throw new Error(
-          err.data?.message || err.message || "Eroare la schimbarea parolei"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la schimbarea parolei";
+        showError(message);
+        throw new Error(message);
       }
     },
 
     async deleteAccount() {
+      const { success, error: showError } = useToast();
       this.loading = true;
 
       try {
@@ -183,13 +201,15 @@ export const useAuthStore = defineStore("auth", {
         registreStore.$reset();
         documentsStore.$reset();
 
+        success("Contul a fost șters");
         navigateTo("/login");
       } catch (err: any) {
-        throw new Error(
+        const message =
           err.data?.message ||
-            err.message ||
-            "A apărut o eroare la ștergerea contului"
-        );
+          err.message ||
+          "A apărut o eroare la ștergerea contului";
+        showError(message);
+        throw new Error(message);
       } finally {
         this.loading = false;
       }

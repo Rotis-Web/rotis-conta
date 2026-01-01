@@ -61,6 +61,7 @@ export const useDocumentsStore = defineStore("documents", {
         data?: string;
       }
     ) {
+      const { success, error: showError } = useToast();
       this.uploading = true;
 
       try {
@@ -80,19 +81,20 @@ export const useDocumentsStore = defineStore("documents", {
           }
         );
 
-        // Optimistically add to list
         this.documents.unshift(data.document);
-
+        success("Document încărcat cu succes!");
         return data.document;
       } catch (err: any) {
-        throw new Error(err.data?.message || err.message || "Eroare la upload");
+        const message = err.data?.message || err.message || "Eroare la upload";
+        showError(message);
+        throw new Error(message);
       } finally {
         this.uploading = false;
       }
     },
 
     async deleteDocument(id: string) {
-      // Optimistic update
+      const { success, error: showError } = useToast();
       const index = this.documents.findIndex((d) => d._id === id);
       const deleted = index !== -1 ? this.documents[index] : null;
 
@@ -102,13 +104,15 @@ export const useDocumentsStore = defineStore("documents", {
 
       try {
         await $fetch(`/api/documents/${id}`, { method: "DELETE" });
+        success("Document șters cu succes!");
       } catch (err: any) {
         if (deleted) {
           this.documents.splice(index, 0, deleted);
         }
-        throw new Error(
-          err.data?.message || err.message || "Eroare la ștergere document"
-        );
+        const message =
+          err.data?.message || err.message || "Eroare la ștergere document";
+        showError(message);
+        throw new Error(message);
       }
     },
   },
