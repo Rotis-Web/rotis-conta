@@ -2,17 +2,17 @@
 
 > Open-source accounting management platform for Romanian PFA businesses
 
-  [![Nuxt JS](https://img.shields.io/badge/Nuxt-002E3B?style=flat-square&logo=nuxt&logoColor=#00DC82)](https://nuxt.com/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-  [![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=flat-square&logo=vuedotjs&logoColor=%234FC08D)](https://vuejs.org/)
-  [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-  [![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Nuxt JS](https://img.shields.io/badge/Nuxt-002E3B?style=flat-square&logo=nuxt&logoColor=#00DC82)](https://nuxt.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=flat-square&logo=vuedotjs&logoColor=%234FC08D)](https://vuejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
 <img src="https://res.cloudinary.com/dqyq1oiwi/image/upload/v1767290063/Copy_of_Untitled_Design_xgawf7.png" alt="Roti's Conta Banner" width="100%">
 
 ## Overview
 
-Roti's Conta is a web application designed to simplify accounting management for independent professionals (PFA) in Romania. It provides essential tools for fiscal record-keeping, document management, and automatic tax calculations compliant with Romanian legislation.
+**Roti's Conta** is a web application designed to simplify accounting management for independent professionals (PFA) in Romania. It provides essential tools for fiscal record-keeping, document management, and automatic tax calculations compliant with Romanian legislation.
 
 **Built for:** Personal use, but open-sourced for the Romanian PFA community.
 
@@ -21,7 +21,7 @@ Roti's Conta is a web application designed to simplify accounting management for
 ### Core Functionality
 
 - **Income & Expense Register** - Complete tracking with monthly/annual reports
-- **In/Out Document Register** - Correspondence and official document management  
+- **In/Out Document Register** - Correspondence and official document management
 - **Inventory Register** - Asset tracking and valuation
 - **Tax Calculator** - Automatic calculation of CAS (25%), CASS (10%), and Income Tax (10%) based on legal thresholds
 - **Document Management** - Upload and organize contracts, invoices, declarations, and miscellaneous documents
@@ -34,7 +34,6 @@ Roti's Conta is a web application designed to simplify accounting management for
 - Input validation using Zod schemas
 - Data sanitization to prevent NoSQL injection
 - CSV export for all registers
-
 
 ## Preview
 
@@ -51,16 +50,17 @@ Roti's Conta is a web application designed to simplify accounting management for
 ## Tech Stack
 
 **Frontend:**
+
 - Nuxt.js 4
 - TypeScript
 - TailwindCSS
 - Pinia (state management)
 
 **Backend:**
+
 - Nuxt server routes
 - MongoDB with Mongoose ODM
 - Vercel Blob (file storage)
-
 
 ## Prerequisites
 
@@ -101,6 +101,7 @@ docker-compose --profile prod up -d
 ```
 
 **Services:**
+
 - **App (dev):** `http://localhost:3000` + Hot reload on `http://localhost:24678`
 - **App (prod):** `http://localhost:3000`
 - **MongoDB:** `localhost:27017`
@@ -120,7 +121,7 @@ JWT_SECRET=your_jwt_secret_min_32_characters
 # File Storage (Vercel Blob)
 BLOB_READ_WRITE_TOKEN=your_vercel_blob_token
 
-# API 
+# API
 API_BASE_URL="http://localhost:3000/api"
 
 # Environment
@@ -128,7 +129,6 @@ NODE_ENV=development
 ```
 
 **For production:** Use strong secrets and secure database credentials.
-
 
 ## Project Structure
 
@@ -144,7 +144,7 @@ rotis-conta/
 │   ├── components/           # Vue components
 │   ├── composables/          # Reusable logic
 │   ├── middleware/           # Auth & guest handling
-│   ├── layouts/              # Application layouts  
+│   ├── layouts/              # Application layouts
 │   ├── pages/                # Application routes
 ├── stores/               # Pinia state management
 ├── types/                # TypeScript definitions
@@ -177,8 +177,6 @@ rotis-conta/
 - Rate limiting on every endpoint
 - CSP headers and XSS protection
 - **No browser storage APIs** - All state managed in-memory or server-side
-
-
 
 ## Disclaimer
 
