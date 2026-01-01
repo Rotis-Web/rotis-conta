@@ -1,0 +1,123 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+.output
+.nuxt
+dist
+.nitro
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+.circleci
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+docs/
+*.md
+
+# Testing
+coverage
+.nyc_output
+*.test.js
+*.spec.js
+__tests__
+tests/
+test/
+*.test.ts
+*.spec.ts
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+tmp
+temp
+*.tmp
+*.temp
+
+# Package manager locks
+yarn.lock
+package-lock.json
+bun.lockb
+
+# Nuxt specific
+.nuxt
+.output
+.data
+.cache
+
+# TypeScript
+*.tsbuildinfo
+
+
+# Uploads directory
+uploads/
+storage/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Archive files
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# Development tools
+.eslintcache
+.prettiercache
+.stylelintcache
+
+# Misc
+*.orig
+.husky
