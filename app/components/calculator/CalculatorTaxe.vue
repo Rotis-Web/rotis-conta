@@ -177,7 +177,8 @@
                 </span>
 
                 <span v-if="result.cassExempted" class="text-xs text-green-700">
-                  ✓ Exceptat: {{ result.cassExemptionReason }}
+                  {{ result.cassExemptionReason }} - CASS din baza reală:
+                  {{ formatCurrency(result.cassBase) }}
                 </span>
 
                 <span
@@ -204,6 +205,18 @@
                 "
               >
                 {{ formatCurrency(result.cass) }}
+              </span>
+            </div>
+
+            <div
+              v-if="result.bazaImpozit !== result.baza"
+              class="flex justify-between items-center p-3 bg-blue-50 rounded"
+            >
+              <span class="text-sm font-medium text-blue-800">
+                Bază Impozit (după CAS/CASS):
+              </span>
+              <span class="text-sm font-bold text-blue-900">
+                {{ formatCurrency(result.bazaImpozit) }}
               </span>
             </div>
 
@@ -257,9 +270,10 @@
             <li>
               <strong>CASS (10%):</strong>
               <span v-if="result.cassExempted">
-                Ești exceptat de la plata CASS datorită statutului tău ({{
-                  result.cassExemptionReason
-                }}). Nu se aplică plafonul minim.
+                Ca {{ result.cassExemptionReason?.toLowerCase() }}, plătești
+                CASS de 10% din venitul net real ({{
+                  formatCurrency(result.baza)
+                }}), fără plafonul minim de 6× salariul minim.
               </span>
               <span v-else>
                 Se calculează la o bază încadrată între
@@ -270,7 +284,9 @@
             </li>
             <li>
               <strong>Impozit pe venit (10%):</strong> Se aplică pe baza
-              impozabilă (venit − cheltuieli).
+              impozabilă DUPĂ scăderea CAS și CASS ({{
+                formatCurrency(result.bazaImpozit)
+              }}).
             </li>
             <li>
               Pragurile afișate sunt pentru anul selectat:
@@ -299,13 +315,8 @@ import type { CassExemption } from "~/composables/useCalculatorTaxe";
 
 definePageMeta({ middleware: "auth" });
 
-const {
-  calculate,
-  calculateFromIncasariPlati,
-  thresholdsFor,
-  calculating,
-  getCassExemptionOptions,
-} = useCalculatorTaxe();
+const { calculate, calculateFromIncasariPlati, thresholdsFor, calculating } =
+  useCalculatorTaxe();
 const { finishLoading } = usePageLoad();
 
 const selectedYear = ref(new Date().getFullYear());
@@ -321,7 +332,14 @@ const years = computed(() => {
   return arr;
 });
 
-const cassExemptionOptions = computed(() => getCassExemptionOptions());
+const cassExemptionOptions = [
+  { label: "Fără exceptare", value: "none" },
+  { label: "Elev/Student", value: "student" },
+  { label: "Pensionar", value: "pensioner" },
+  { label: "Angajat cu CIM", value: "employed" },
+  { label: "Concediu creștere copil", value: "parental_leave" },
+  { label: "Alte cazuri legale", value: "other" },
+];
 
 const thresholds = computed(() => thresholdsFor(selectedYear.value));
 

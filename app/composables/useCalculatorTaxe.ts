@@ -27,6 +27,7 @@ export type TaxResult = {
   venit: number;
   cheltuieli: number;
   baza: number;
+  bazaImpozit: number;
   cas: number;
   cass: number;
   impozit: number;
@@ -75,6 +76,22 @@ const getCassExemptionLabel = (exemption: CassExemption): string => {
   return labels[exemption];
 };
 
+const getCassExemptionOptions = () => {
+  const exemptions: CassExemption[] = [
+    "none",
+    "student",
+    "pensioner",
+    "employed",
+    "parental_leave",
+    "other",
+  ];
+
+  return exemptions.map((exemption) => ({
+    label: getCassExemptionLabel(exemption),
+    value: exemption,
+  }));
+};
+
 export const useCalculatorTaxe = () => {
   const { success, error: showError } = useToast();
   const calculating = ref(false);
@@ -102,7 +119,6 @@ export const useCalculatorTaxe = () => {
       cas = casBase * t.CAS_RATE;
     }
 
-    // Calcul CASS cu exceptări
     let cass = 0;
     let cassApplicabil = false;
     let cassBase = 0;
@@ -110,20 +126,19 @@ export const useCalculatorTaxe = () => {
     let cassExemptionReason: string | undefined;
 
     if (baza > 0) {
+      cassApplicabil = true;
       if (cassExempted) {
-        // Persoana este exceptată - nu se aplică plafonul minim
-        cassApplicabil = false;
-        cass = 0;
+        cassBase = baza;
+        cass = cassBase * t.CASS_RATE;
         cassExemptionReason = getCassExemptionLabel(cassExemption);
       } else {
-        // Calcul normal CASS
-        cassApplicabil = true;
         cassBase = Math.min(Math.max(baza, t.CASS_MIN_BASE), t.CASS_MAX_BASE);
         cass = cassBase * t.CASS_RATE;
       }
     }
 
-    const impozit = baza * t.IMPOZIT_RATE;
+    const bazaImpozit = Math.max(0, baza - cas - cass);
+    const impozit = bazaImpozit * t.IMPOZIT_RATE;
     const total = cas + cass + impozit;
     const net = baza - total;
 
@@ -131,6 +146,7 @@ export const useCalculatorTaxe = () => {
       venit,
       cheltuieli,
       baza,
+      bazaImpozit,
       cas,
       cass,
       impozit,
@@ -181,27 +197,10 @@ export const useCalculatorTaxe = () => {
     }
   };
 
-  const getCassExemptionOptions = () => {
-    const exemptions: CassExemption[] = [
-      "none",
-      "student",
-      "pensioner",
-      "employed",
-      "parental_leave",
-      "other",
-    ];
-
-    return exemptions.map((exemption) => ({
-      label: getCassExemptionLabel(exemption),
-      value: exemption,
-    }));
-  };
-
   return {
     calculate,
     calculateFromIncasariPlati,
     thresholdsFor,
     calculating,
-    getCassExemptionOptions,
   };
 };

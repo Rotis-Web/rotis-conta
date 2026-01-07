@@ -118,7 +118,7 @@
                 CASS (10%):
               </span>
               <span v-if="taxe.cassExempted" class="text-xs text-green-700">
-                ✓ Exceptat: {{ taxe.cassExemptionReason }}
+                {{ taxe.cassExemptionReason }} - din baza reală
               </span>
               <span
                 v-else-if="!taxe.cassApplicabil"
@@ -156,13 +156,16 @@
             {{ selectedYear }}.
           </p>
           <p v-if="taxe?.cassExempted">
-            * Ești exceptat de la plata CASS datorită statutului selectat ({{
-              taxe.cassExemptionReason
-            }}).
+            * Ca {{ taxe.cassExemptionReason?.toLowerCase() }}, CASS se
+            calculează din venitul net real, fără plafonul minim de 6× salariul
+            minim.
           </p>
           <p v-else>
             * CAS și CASS se calculează doar dacă venitul depășește pragurile
             legale.
+          </p>
+          <p>
+            * Impozitul se calculează din baza rămasă după scăderea CAS și CASS.
           </p>
           <p>
             * Consultați un contabil pentru valori exacte și cazuri specifice.
@@ -204,7 +207,7 @@ definePageMeta({
 });
 
 const { finishLoading } = usePageLoad();
-const { calculate, getCassExemptionOptions } = useCalculatorTaxe();
+const { calculate } = useCalculatorTaxe();
 const { exportEvidentaFiscalaCSV } = useExportCSV();
 
 const selectedYear = ref(new Date().getFullYear());
@@ -228,7 +231,14 @@ const availableYears = computed(() => {
   return years;
 });
 
-const cassExemptionOptions = computed(() => getCassExemptionOptions());
+const cassExemptionOptions = [
+  { label: "Fără exceptare", value: "none" },
+  { label: "Elev/Student", value: "student" },
+  { label: "Pensionar", value: "pensioner" },
+  { label: "Angajat cu CIM", value: "employed" },
+  { label: "Concediu creștere copil", value: "parental_leave" },
+  { label: "Alte cazuri legale", value: "other" },
+];
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("ro-RO", {
