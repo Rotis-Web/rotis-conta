@@ -3,6 +3,14 @@ const MIN_WAGE_BY_YEAR: Record<number, number> = {
   2025: 4050,
 };
 
+export type CassExemption =
+  | "none" // Fără exceptare
+  | "student" // Elev/Student
+  | "pensioner" // Pensionar
+  | "employed" // Angajat (asigurat prin CIM)
+  | "parental_leave" // Concediu creștere copil
+  | "other"; // Alte cazuri prevăzute de lege
+
 export type TaxThresholds = {
   year: number;
   SALARIU_MINIM_BRUT: number;
@@ -26,6 +34,8 @@ export type TaxResult = {
   net: number;
   casApplicabil: boolean;
   cassApplicabil: boolean;
+  cassExempted: boolean;
+  cassExemptionReason?: string;
   salariuMinim: number;
   pragCas12: number;
   pragCas24: number;
@@ -53,6 +63,18 @@ const getThresholds = (year: number): TaxThresholds => {
   };
 };
 
+const getCassExemptionLabel = (exemption: CassExemption): string => {
+  const labels: Record<CassExemption, string> = {
+    none: "Fără exceptare",
+    student: "Elev/Student",
+    pensioner: "Pensionar",
+    employed: "Angajat cu CIM",
+    parental_leave: "Concediu creștere copil",
+    other: "Alte cazuri legale",
+  };
+  return labels[exemption];
+};
+
 export const useCalculatorTaxe = () => {
   const { success, error: showError } = useToast();
   const calculating = ref(false);
@@ -62,12 +84,14 @@ export const useCalculatorTaxe = () => {
   const calculate = (
     venit: number,
     cheltuieli: number,
-    year: number
+    year: number,
+    cassExemption: CassExemption = "none"
   ): TaxResult => {
     const t = getThresholds(year);
 
     const baza = Math.max(0, venit - cheltuieli);
 
+    // Calcul CAS
     let cas = 0;
     let casApplicabil = false;
     let casBase = 0;
@@ -78,14 +102,25 @@ export const useCalculatorTaxe = () => {
       cas = casBase * t.CAS_RATE;
     }
 
+    // Calcul CASS cu exceptări
     let cass = 0;
     let cassApplicabil = false;
     let cassBase = 0;
+    let cassExempted = cassExemption !== "none";
+    let cassExemptionReason: string | undefined;
 
     if (baza > 0) {
-      cassApplicabil = true;
-      cassBase = Math.min(Math.max(baza, t.CASS_MIN_BASE), t.CASS_MAX_BASE);
-      cass = cassBase * t.CASS_RATE;
+      if (cassExempted) {
+        // Persoana este exceptată - nu se aplică plafonul minim
+        cassApplicabil = false;
+        cass = 0;
+        cassExemptionReason = getCassExemptionLabel(cassExemption);
+      } else {
+        // Calcul normal CASS
+        cassApplicabil = true;
+        cassBase = Math.min(Math.max(baza, t.CASS_MIN_BASE), t.CASS_MAX_BASE);
+        cass = cassBase * t.CASS_RATE;
+      }
     }
 
     const impozit = baza * t.IMPOZIT_RATE;
@@ -103,6 +138,8 @@ export const useCalculatorTaxe = () => {
       net,
       casApplicabil,
       cassApplicabil,
+      cassExempted,
+      cassExemptionReason,
       salariuMinim: t.SALARIU_MINIM_BRUT,
       pragCas12: t.CAS_PRAG_12,
       pragCas24: t.CAS_PRAG_24,
@@ -114,7 +151,10 @@ export const useCalculatorTaxe = () => {
     };
   };
 
-  const calculateFromIncasariPlati = async (year: number) => {
+  const calculateFromIncasariPlati = async (
+    year: number,
+    cassExemption: CassExemption = "none"
+  ) => {
     calculating.value = true;
     try {
       const { data } = await useFetch("/api/registre/incasari-plati", {
@@ -129,7 +169,7 @@ export const useCalculatorTaxe = () => {
       const venit = (data.value as any).totals.incasari;
       const cheltuieli = (data.value as any).totals.plati;
 
-      const result = calculate(venit, cheltuieli, year);
+      const result = calculate(venit, cheltuieli, year, cassExemption);
       success("Calculul a fost realizat cu succes!");
       return result;
     } catch (err) {
@@ -141,10 +181,27 @@ export const useCalculatorTaxe = () => {
     }
   };
 
+  const getCassExemptionOptions = () => {
+    const exemptions: CassExemption[] = [
+      "none",
+      "student",
+      "pensioner",
+      "employed",
+      "parental_leave",
+      "other",
+    ];
+
+    return exemptions.map((exemption) => ({
+      label: getCassExemptionLabel(exemption),
+      value: exemption,
+    }));
+  };
+
   return {
     calculate,
     calculateFromIncasariPlati,
     thresholdsFor,
     calculating,
+    getCassExemptionOptions,
   };
 };

@@ -5,7 +5,7 @@
         Registru de Evidență Fiscală
       </h2>
 
-      <div class="mb-6">
+      <div class="mb-6 space-y-4">
         <div class="w-25">
           <CustomDropdown
             v-model="selectedYear"
@@ -14,6 +14,21 @@
             "
             @change="handleYearChange"
           />
+        </div>
+
+        <div class="bg-purple-50 p-4 rounded-lg">
+          <label class="block text-sm font-medium text-purple-900 mb-2">
+            Statut contribuabil CASS
+          </label>
+          <CustomDropdown
+            v-model="cassExemption"
+            :options="cassExemptionOptions"
+            class="w-full md:w-96"
+            @change="loadData"
+          />
+          <p class="text-xs text-purple-700 mt-2">
+            💡 Selectează statutul tău pentru calculul corect al CASS
+          </p>
         </div>
       </div>
 
@@ -83,17 +98,41 @@
 
           <div
             class="flex justify-between"
-            :class="taxe.cassApplicabil ? '' : 'opacity-50'"
+            :class="
+              taxe.cassExempted
+                ? 'bg-green-100 p-2 rounded'
+                : taxe.cassApplicabil
+                ? ''
+                : 'opacity-50'
+            "
           >
             <div class="flex flex-col">
-              <span class="text-sm text-gray-700">CASS (10%):</span>
-              <span v-if="!taxe.cassApplicabil" class="text-xs text-gray-500">
+              <span
+                class="text-sm"
+                :class="
+                  taxe.cassExempted
+                    ? 'text-green-800 font-medium'
+                    : 'text-gray-700'
+                "
+              >
+                CASS (10%):
+              </span>
+              <span v-if="taxe.cassExempted" class="text-xs text-green-700">
+                ✓ Exceptat: {{ taxe.cassExemptionReason }}
+              </span>
+              <span
+                v-else-if="!taxe.cassApplicabil"
+                class="text-xs text-gray-500"
+              >
                 Nu se aplică (sub prag)
               </span>
             </div>
-            <span class="text-sm font-semibold">{{
-              formatCurrency(taxe.cass)
-            }}</span>
+            <span
+              class="text-sm font-semibold"
+              :class="taxe.cassExempted ? 'text-green-800' : ''"
+            >
+              {{ formatCurrency(taxe.cass) }}
+            </span>
           </div>
 
           <div class="flex justify-between">
@@ -116,7 +155,12 @@
             * Calculele sunt orientative și țin cont de pragurile fiscale din
             {{ selectedYear }}.
           </p>
-          <p>
+          <p v-if="taxe?.cassExempted">
+            * Ești exceptat de la plata CASS datorită statutului selectat ({{
+              taxe.cassExemptionReason
+            }}).
+          </p>
+          <p v-else>
             * CAS și CASS se calculează doar dacă venitul depășește pragurile
             legale.
           </p>
@@ -153,15 +197,18 @@
 </template>
 
 <script setup lang="ts">
+import type { CassExemption } from "~/composables/useCalculatorTaxe";
+
 definePageMeta({
   middleware: "auth",
 });
 
 const { finishLoading } = usePageLoad();
-const { calculate } = useCalculatorTaxe();
+const { calculate, getCassExemptionOptions } = useCalculatorTaxe();
 const { exportEvidentaFiscalaCSV } = useExportCSV();
 
 const selectedYear = ref(new Date().getFullYear());
+const cassExemption = ref<CassExemption>("none");
 
 const totals = ref({
   venituri: 0,
@@ -180,6 +227,8 @@ const availableYears = computed(() => {
   }
   return years;
 });
+
+const cassExemptionOptions = computed(() => getCassExemptionOptions());
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("ro-RO", {
@@ -201,7 +250,8 @@ const loadData = async () => {
       taxe.value = calculate(
         totals.value.venituri,
         totals.value.cheltuieli,
-        selectedYear.value
+        selectedYear.value,
+        cassExemption.value
       );
     }
   } catch (error) {

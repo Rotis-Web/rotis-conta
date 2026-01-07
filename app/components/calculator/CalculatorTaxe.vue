@@ -5,6 +5,22 @@
     </h2>
 
     <div class="space-y-4">
+      <div class="bg-purple-50 p-4 rounded-lg">
+        <label class="block text-sm font-medium text-purple-900 mb-2">
+          Statut contribuabil CASS
+        </label>
+        <CustomDropdown
+          v-model="cassExemption"
+          :options="cassExemptionOptions"
+          class="w-full md:w-96"
+        />
+        <p class="text-xs text-purple-700 mt-2">
+          💡 Dacă ești elev, student, pensionar sau ai alt statut care te
+          scutește, selectează opțiunea corespunzătoare pentru a nu plăti
+          plafonul minim CASS.
+        </p>
+      </div>
+
       <div class="bg-blue-50 p-4 rounded-lg">
         <p class="block text-sm font-medium text-blue-900 mb-2">
           Calculează din registrul de încasări și plăți
@@ -138,20 +154,34 @@
 
             <div
               class="flex justify-between items-center p-3 rounded"
-              :class="result.cassApplicabil ? 'bg-purple-50' : 'bg-gray-100'"
+              :class="
+                result.cassExempted
+                  ? 'bg-green-50'
+                  : result.cassApplicabil
+                  ? 'bg-purple-50'
+                  : 'bg-gray-100'
+              "
             >
               <div class="flex flex-col">
                 <span
                   class="text-sm font-medium"
                   :class="
-                    result.cassApplicabil ? 'text-purple-800' : 'text-gray-600'
+                    result.cassExempted
+                      ? 'text-green-800'
+                      : result.cassApplicabil
+                      ? 'text-purple-800'
+                      : 'text-gray-600'
                   "
                 >
                   CASS (10%):
                 </span>
 
+                <span v-if="result.cassExempted" class="text-xs text-green-700">
+                  ✓ Exceptat: {{ result.cassExemptionReason }}
+                </span>
+
                 <span
-                  v-if="result.cassApplicabil"
+                  v-else-if="result.cassApplicabil"
                   class="text-xs text-purple-700"
                 >
                   Bază CASS (încadrată 6×..60×):
@@ -166,7 +196,11 @@
               <span
                 class="text-sm font-bold"
                 :class="
-                  result.cassApplicabil ? 'text-purple-900' : 'text-gray-600'
+                  result.cassExempted
+                    ? 'text-green-900'
+                    : result.cassApplicabil
+                    ? 'text-purple-900'
+                    : 'text-gray-600'
                 "
               >
                 {{ formatCurrency(result.cass) }}
@@ -221,10 +255,18 @@
               funcție de venit.
             </li>
             <li>
-              <strong>CASS (10%):</strong> Se calculează la o bază încadrată
-              între {{ formatCurrency(result.cassMinBase) }} (6×) și
-              {{ formatCurrency(result.cassMaxBase) }} (60×), în funcție de
-              venitul net anual.
+              <strong>CASS (10%):</strong>
+              <span v-if="result.cassExempted">
+                Ești exceptat de la plata CASS datorită statutului tău ({{
+                  result.cassExemptionReason
+                }}). Nu se aplică plafonul minim.
+              </span>
+              <span v-else>
+                Se calculează la o bază încadrată între
+                {{ formatCurrency(result.cassMinBase) }} (6×) și
+                {{ formatCurrency(result.cassMaxBase) }} (60×), în funcție de
+                venitul net anual.
+              </span>
             </li>
             <li>
               <strong>Impozit pe venit (10%):</strong> Se aplică pe baza
@@ -253,13 +295,21 @@
 </template>
 
 <script setup lang="ts">
+import type { CassExemption } from "~/composables/useCalculatorTaxe";
+
 definePageMeta({ middleware: "auth" });
 
-const { calculate, calculateFromIncasariPlati, thresholdsFor, calculating } =
-  useCalculatorTaxe();
+const {
+  calculate,
+  calculateFromIncasariPlati,
+  thresholdsFor,
+  calculating,
+  getCassExemptionOptions,
+} = useCalculatorTaxe();
 const { finishLoading } = usePageLoad();
 
 const selectedYear = ref(new Date().getFullYear());
+const cassExemption = ref<CassExemption>("none");
 const manualInput = ref({ venit: 0, cheltuieli: 0 });
 const result = ref<any>(null);
 
@@ -271,10 +321,15 @@ const years = computed(() => {
   return arr;
 });
 
+const cassExemptionOptions = computed(() => getCassExemptionOptions());
+
 const thresholds = computed(() => thresholdsFor(selectedYear.value));
 
 const calculateFromRegistru = async () => {
-  const data = await calculateFromIncasariPlati(selectedYear.value);
+  const data = await calculateFromIncasariPlati(
+    selectedYear.value,
+    cassExemption.value
+  );
   if (data) {
     result.value = data;
     manualInput.value.venit = data.venit;
@@ -286,7 +341,8 @@ const calculateManual = () => {
   result.value = calculate(
     manualInput.value.venit,
     manualInput.value.cheltuieli,
-    selectedYear.value
+    selectedYear.value,
+    cassExemption.value
   );
 };
 
@@ -294,6 +350,12 @@ const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("ro-RO", { style: "currency", currency: "RON" }).format(
     amount
   );
+
+watch(cassExemption, () => {
+  if (result.value) {
+    calculateManual();
+  }
+});
 
 onMounted(() => {
   finishLoading();
